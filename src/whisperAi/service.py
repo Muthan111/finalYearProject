@@ -12,6 +12,6 @@ class WhisperAiService:
         await asyncio.sleep(0)  # Simulate async behavior
         self.result = self.model.transcribe(audio_file, language=self.language)
         print("Transcription:", self.result["text"])
-        return self.result
+        return self.result["text"]
 
     

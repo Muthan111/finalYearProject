@@ -175,3 +175,6 @@ cython_debug/
 .pypirc
 
 uploads/
+.mp3
+recordings/
+processed_recordings/
