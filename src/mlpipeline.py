@@ -67,7 +67,7 @@ def save_processed_audio(audio, inputename, filepath):
         "filepath": full_path
     }
 
-def save_transcription(text,filepath="../transcriptions"):
+def save_transcription(text, filepath="../transcriptions"):
     os.makedirs(filepath, exist_ok=True)  # Ensure the directory exists
     counter = 0
     while True:
@@ -84,7 +84,7 @@ def save_transcription(text,filepath="../transcriptions"):
 CHUNK= 1024  # Number of audio samples per frame
 FORMAT = pyaudio.paInt16  # Audio format (16-bit PCM)
 RATE = 44100  # Sample rate (samples per second)
-CHANNELS = 1  # Number of audio channels (1 for mono, 2 for stereo)
+CHANNELS = 2  # Number of audio channels (1 for mono, 2 for stereo)
 
 # ===================
 # Function to record audio from the microphone
@@ -94,7 +94,7 @@ def microphone():
     stream = recording.open(format=FORMAT, channels=CHANNELS, rate=RATE, input=True, frames_per_buffer=CHUNK)
     print("🎙️ Recording started...")
     frames = []
-    seconds = 5  # Duration of the recording in seconds
+    seconds = 10  # Duration of the recording in seconds
 
     for i in range(0, int(RATE / CHUNK * seconds)):
         data = stream.read(CHUNK)
@@ -175,9 +175,11 @@ def extractMFCC(audio,sr, n_mfcc=13):
 # detect stutters
 # =================== 
 def transcribe(file_path):
-  model = whisper.load_model("base")
+  model = whisper.load_model("medium")
   result = model.transcribe(file_path,initial_prompt="uh um like you know so", language="en",word_timestamps=True)
   text = result['text']
+  save_transcription(text, "../transcriptions")
+  print("📝 Transcription completed.")
 
   print(text)
   return text
@@ -238,7 +240,36 @@ def detect_repetition(audio, sr, mfcc, sim_thresh=0.98, min_repeats=4, min_time=
     print(f"⏱️ Repetition timestamps (filtered): {filtered_times}")
     return filtered_times
 
+def detect_prolongation(audio, sr, energy_thresh=2.0, min_duration=0.5):
+    spec = librosa.feature.melspectrogram(y=audio, sr=sr)
+    db_spec = librosa.power_to_db(spec, ref=np.max)
 
+    energy_diff = np.abs(np.diff(db_spec, axis=1)).mean(axis=0)
+    prolonged_frames = energy_diff < energy_thresh
+
+    # Find contiguous frame sequences
+    count = 0
+    starts = []
+    for i, val in enumerate(prolonged_frames):
+        if val:
+            count += 1
+        else:
+            if count >= (min_duration * sr / 512):
+                starts.append(i - count)
+            count = 0
+    return [librosa.frames_to_time(s, sr=sr).item() for s in starts]
+
+def detect_block(audio, sr, silence_thresh=0.01, block_thresh=1.0):
+    energy = librosa.feature.rms(y=audio)[0]
+    smoothed_energy = np.convolve(energy, np.ones(5)/5, mode='same')
+    silent = smoothed_energy < silence_thresh
+
+    first_speech = np.argmax(~silent)
+    start_time = librosa.frames_to_time(first_speech, sr=sr)
+
+    if start_time > block_thresh:
+        return [start_time]
+    return []
 
 # ===================
 # Execution function
@@ -256,12 +287,16 @@ def execute_pipeline():
     repeated_words = repeatedWords(text)
     # fillers = fillers(text)
     fillerwords = fillers(text)
+    prolongnations = detect_prolongation(cleaned_audio["audio"], cleaned_audio["sr"])
+    blocks = detect_block(cleaned_audio["audio"], cleaned_audio["sr"])
     return {
         
         "repetitions": reptitions,
         "Repeated Words" : repeated_words,
         "Fillers" : fillerwords,
-        "Transcription": text
+        "Transcription": text,
+        "Prolongations": prolongnations,
+        "Blocks": blocks
         # "Fillers": fillers
     }
 
@@ -270,3 +305,5 @@ print("Detected repetitions at times (in seconds):", test1["repetitions"])
 print("Repeated words detected:", test1["Repeated Words"])
 print("Fillers detected:", test1["Fillers"])
 print("Transcription:", test1["Transcription"])
+print("Prolongations detected at times (in seconds):", test1["Prolongations"])
+print("Blocks detected at times (in seconds):", test1["Blocks"])
