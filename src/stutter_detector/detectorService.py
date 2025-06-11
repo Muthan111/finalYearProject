@@ -1,8 +1,20 @@
+import logging
 from fastapi import HTTPException
 from src.stutter_detector.microphoneService import MicrophoneService
 from src.stutter_detector.audioCleanService import AudioCleanService
 from src.stutter_detector.audioAnalysisService import audioAnalysisService
 from src.stutter_detector.whisperService import WhisperService
+from src.stutter_detector.feedbackService import FeedbackService
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    filename="detector.log",  # Log output will go to detector.log in the current directory
+    filemode="w"
+)
+logger = logging.getLogger(__name__)
+
+
 class DetectorService:
     def __init__(self):
         self.result = None
@@ -10,40 +22,70 @@ class DetectorService:
         self.audio_clean_service = AudioCleanService()
         self.audio_analysis_service = audioAnalysisService()
         self.whisper_service = WhisperService()
+        self.feedback = FeedbackService()
         self.language = "en"
     
     async def detect_stutter(self):
-        print("starting stutter detection...")
-        print()
-        raw_audio = await self.microphone_service.start_recording()  # Example usage
+        # ===================
+        # Audio input 
+        # ===================    
+        logger.info("starting stutter detection...")
+        logger.info("Recording")
+        raw_audio = await self.microphone_service.start_recording()  
         if not raw_audio:
             raise HTTPException(status_code=400, detail="Error in recording audio function")
-        
-        print()
-        print("Transcribing audio...")
+        logger.info("Recording stopped")
+
+        # ===================
+        # Audio Transcription 
+        # =================== 
+        # logger.info()
+        logger.info("Transcribing audio...")
         transcription = await self.whisper_service.transcribe(raw_audio["audiofilepath"])
-        print()
-        print("Cleaning audio...")
+        if not transcription:
+            raise HTTPException(status_code=400, detail="Error in transcribing audio function")
+        logger.info("Transcription donw")
+
+        # ===================
+        # Audio Cleaning 
+        # ===================
+        # logger.info()
+        logger.info("Cleaning audio...")
         cleaned_audio = await self.audio_clean_service.preprocess_audio(raw_audio["audiofilepath"])
+        if not cleaned_audio:
+            raise HTTPException(status_code=400, detail="Error in cleaning audio function")
+        logger.info("Cleaning done")
 
-        print()
-        print("Analysing Audio")
+
+        # ===================
+        # Audio Analysis 
+        # ===================
+        # logger.info
+        logger.info("Analysing Audio")
         mfccFeatures = await self.audio_analysis_service.extractMFCC(cleaned_audio["cleanedAudio"], cleaned_audio["sr"])
+        if not mfccFeatures:
+            raise HTTPException(status_code=400, detail="Error in extracting MFCC features function")
 
-        print()
-        print("Detecting Stutters...")
+        # ===================
+        # Feature detection
+        # ===================
+        # logger.info
+        logger.info("Detecting Stutters...")
         repetitions = self.audio_analysis_service.detect_repetitions(mfccFeatures["sr"], mfccFeatures["mfcc"])
         prolongations = self.audio_analysis_service.detect_prolongation(cleaned_audio["cleanedAudio"], cleaned_audio["sr"])
         blocks = self.audio_analysis_service.detect_block(cleaned_audio["cleanedAudio"], cleaned_audio["sr"])
         repeatedWords = self.whisper_service.repeatedWords(transcription)
         fillers = self.whisper_service.fillers(transcription)
-        return {
-            "repetitions": repetitions,
-            "prolongations": prolongations,
-            "blocks": blocks,
-            "transcription": transcription,
-            "repeatedWords": repeatedWords,
-            "fillers": fillers,
-        }
+        logger.info("detection done")
+        # logger.info
+
+        logger.info(" displaying results now")
+        self.feedback.repetions_feedback(repetitions)
+        self.feedback.blocks_feedback(blocks)
+        self.feedback.prolongations_feedback(prolongations)
+        self.feedback.repeated_words_feedback(repeatedWords)
+        self.feedback.fillers_feedback(fillers)
+        return self.feedback.feedback
+        
         
     

@@ -14,7 +14,6 @@ class MicrophoneService:
     
 
     async def start_recording(self):
-        print("🎙️ Recording started...")
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=self.format,
                                    channels=self.channels,
@@ -26,7 +25,6 @@ class MicrophoneService:
         for _ in range(0, int(self.sample_rate / self.chunk_size * self.clip_duration)):
             data = self.stream.read(self.chunk_size)
             self.frames.append(data)
-        print("Recording finished.")
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()

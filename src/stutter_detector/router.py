@@ -21,4 +21,6 @@ async def read_root():
 @stutter_router.post("/stutter_detection")
 async def stutter_detection():
     return await stutter_service.detect_stutter()
+
+
     
