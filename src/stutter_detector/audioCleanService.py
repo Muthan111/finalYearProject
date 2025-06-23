@@ -22,7 +22,6 @@ class AudioCleanService:
             }
         print("Audio processing module loaded successfully.")
         result = await asyncio.to_thread(sync_preprocess, file)
-        print("Audio processing module loaded successfully.")
         return result
     
     def save_processed_audio(audio, inputename, filepath):

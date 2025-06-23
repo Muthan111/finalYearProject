@@ -53,7 +53,10 @@ class audioAnalysisService:
         db_spec = librosa.power_to_db(spec, ref=np.max)
 
         energy_diff = np.abs(np.diff(db_spec, axis=1)).mean(axis=0)
-        prolonged_frames = energy_diff < self.energy_threshold
+        mean_energy_per_frame = db_spec.mean(axis=0)
+        mean_energy_per_frame = mean_energy_per_frame[:-1]
+        energy_floor = -40  # tune this!
+        prolonged_frames = (energy_diff < self.energy_threshold) & (mean_energy_per_frame > energy_floor)
 
         # Find contiguous frame sequences
         count = 0

@@ -7,10 +7,10 @@ class MicrophoneService:
         self.language = "en"
         self.sample_rate = 16000
         self.chunk_size = 1024
-        self.channels  = 2
+        self.channels  = 1
         self.format = pyaudio.paInt16
         self.frames = []
-        self.clip_duration = 10  # seconds
+        self.clip_duration = 19  # seconds
     
 
     async def start_recording(self):
@@ -49,7 +49,7 @@ class MicrophoneService:
         full_path = os.path.join(filepath, filename)
         with wave.open(full_path, 'wb') as wf:
             wf.setnchannels(self.channels)
-            wf.setsampwidth(pyaudio.PyAudio().get_sample_size(self.format))
+            wf.setsampwidth(self.p.get_sample_size(self.format))
             wf.setframerate(self.sample_rate)
             wf.writeframes(b''.join(frames))
         return {

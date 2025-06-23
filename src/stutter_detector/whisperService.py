@@ -6,12 +6,15 @@ class WhisperService:
 
     def __init__(self):
         self.result = None
-        self.model = whisper.load_model("medium.en")  # Load the Whisper model
+        self.model = whisper.load_model("medium.en",)
         self.language = "en"
+        self.initialPrompt = "uh um like you know so"
 
     async def transcribe(self, audio_file):
         await asyncio.sleep(0)  # Simulate async behavior
-        self.result = self.model.transcribe(audio_file, language=self.language)
+        self.result = self.model.transcribe(audio_file, language=self.language, initial_prompt=self.initialPrompt,temperature=0.0,
+        best_of=5,
+        beam_size=5)
         print("Transcription:", self.result["text"])
         return self.result["text"]
     

@@ -37,6 +37,15 @@ class DetectorService:
         logger.info("Recording stopped")
 
         # ===================
+        # Audio Cleaning 
+        # ===================
+        # logger.info()
+        logger.info("Cleaning audio...")
+        cleaned_audio = await self.audio_clean_service.preprocess_audio(raw_audio["audiofilepath"])
+        if not cleaned_audio:
+            raise HTTPException(status_code=400, detail="Error in cleaning audio function")
+        logger.info("Cleaning done")
+        # ===================
         # Audio Transcription 
         # =================== 
         # logger.info()
@@ -46,15 +55,7 @@ class DetectorService:
             raise HTTPException(status_code=400, detail="Error in transcribing audio function")
         logger.info("Transcription donw")
 
-        # ===================
-        # Audio Cleaning 
-        # ===================
-        # logger.info()
-        logger.info("Cleaning audio...")
-        cleaned_audio = await self.audio_clean_service.preprocess_audio(raw_audio["audiofilepath"])
-        if not cleaned_audio:
-            raise HTTPException(status_code=400, detail="Error in cleaning audio function")
-        logger.info("Cleaning done")
+        
 
 
         # ===================
@@ -79,13 +80,20 @@ class DetectorService:
         logger.info("detection done")
         # logger.info
 
-        logger.info(" displaying results now")
-        self.feedback.repetions_feedback(repetitions)
-        self.feedback.blocks_feedback(blocks)
-        self.feedback.prolongations_feedback(prolongations)
-        self.feedback.repeated_words_feedback(repeatedWords)
-        self.feedback.fillers_feedback(fillers)
-        return self.feedback.feedback
+        # 
+        return {
+            "repetitions": repetitions,
+            "blocks": blocks,
+            "prolongations": prolongations,
+            "transcription": transcription,
+            "fillers": fillers,
+            "repeated_words": repeatedWords
+        }
         
         
-    
+    # logger.info(" displaying results now")
+        # self.feedback.repetions_feedback(repetitions)
+        # self.feedback.blocks_feedback(blocks)
+        # self.feedback.prolongations_feedback(prolongations)
+        # self.feedback.repeated_words_feedback(repeatedWords)
+        # self.feedback.fillers_feedback(fillers)
