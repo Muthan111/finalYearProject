@@ -10,7 +10,7 @@ class MicrophoneService:
         self.channels  = 1
         self.format = pyaudio.paInt16
         self.frames = []
-        self.clip_duration = 19  # seconds
+        self.clip_duration = 30  # seconds
     
 
     async def start_recording(self):

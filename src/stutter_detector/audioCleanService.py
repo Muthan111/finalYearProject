@@ -8,23 +8,8 @@ import asyncio
 class AudioCleanService:
     def __init__(self):
         pass
-    
-    async def preprocess_audio(self, file):
-        def sync_preprocess(file):
-            audio, sr = librosa.load(file, sr=16000)
-            pre_emphasis = 0.97
-            pre_emp_audio = np.append(audio[0], audio[1:] - pre_emphasis * audio[:-1])
-            reduced_noise = nr.reduce_noise(y=pre_emp_audio, sr=sr)
-            return {
-            "duration_seconds": len(reduced_noise) / sr,
-            "sr": sr,
-            "cleanedAudio": reduced_noise  # Preview only
-            }
-        print("Audio processing module loaded successfully.")
-        result = await asyncio.to_thread(sync_preprocess, file)
-        return result
-    
-    def save_processed_audio(audio, inputename, filepath):
+
+    def save_processed_audio(self, audio, inputename, filepath):
         os.makedirs(filepath, exist_ok=True)  # Ensure the directory exists
         audioId = 0
         while True:
@@ -41,3 +26,23 @@ class AudioCleanService:
             "filename": filename,
             "filepath": full_path
         }
+    
+    async def preprocess_audio(self, file):
+        def sync_preprocess(file):
+            audio, sr = librosa.load(file, sr=16000)
+            pre_emphasis = 0.97
+            pre_emp_audio = np.append(audio[0], audio[1:] - pre_emphasis * audio[:-1])
+            reduced_noise = nr.reduce_noise(y=pre_emp_audio, sr=sr)
+            processedAudio = self.save_processed_audio(reduced_noise, "processedAudio", "processed_audio_directory")
+            return {
+            "duration_seconds": len(reduced_noise) / sr,
+            "sr": sr,
+            "cleanedAudio": reduced_noise,
+            "processedAudio": processedAudio # Preview only
+
+            }
+        print("Audio processing module loaded successfully.")
+        result = await asyncio.to_thread(sync_preprocess, file)
+        return result
+    
+    

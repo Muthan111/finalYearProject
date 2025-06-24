@@ -3,96 +3,109 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Stutter Detector</title>
+    <title>Stutter Detection</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         body {
-            background: #f4f8fb;
+            background: #f0f4f8;
             font-family: 'Segoe UI', Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
-        header {
-            background: #2d6cdf;
-            color: #fff;
-            padding: 1.5rem 0;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        main {
-            max-width: 500px;
-            margin: 2rem auto;
+        .container {
+            max-width: 420px;
+            margin: 3rem auto;
             background: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 16px rgba(44,108,223,0.08);
-            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(44,108,223,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
         }
         h1 {
-            margin: 0;
-            font-size: 2rem;
+            color: #2d6cdf;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
             letter-spacing: 1px;
         }
         .description {
-            color: #555;
-            margin-bottom: 2rem;
+            color: #444;
             text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.08rem;
         }
-        .upload-section {
+        .action-section {
             display: flex;
             flex-direction: column;
-            gap: 1rem;
             align-items: center;
-        }
-        input[type="file"] {
-            padding: 0.5rem;
+            gap: 1.2rem;
         }
         button {
             background: #2d6cdf;
             color: #fff;
             border: none;
-            padding: 0.75rem 2rem;
-            border-radius: 5px;
-            font-size: 1rem;
+            padding: 0.8rem 2.2rem;
+            border-radius: 6px;
+            font-size: 1.08rem;
             cursor: pointer;
             transition: background 0.2s;
+            font-weight: 500;
         }
         button:hover {
             background: #1a4fa0;
         }
-        .results {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: #eaf1fb;
-            border-radius: 6px;
+        .results-box {
+            width: 100%;
             min-height: 60px;
-            color: #222;
+            background: #eaf1fb;
+            border: 1.5px solid #b6d0f7;
+            border-radius: 6px;
+            padding: 1rem;
+            color: #1a2a3a;
+            font-size: 1.05rem;
+            margin-top: 1.2rem;
+            resize: none;
         }
         footer {
             text-align: center;
             color: #888;
-            margin: 2rem 0 1rem 0;
-            font-size: 0.95rem;
+            margin: 2.5rem 0 1rem 0;
+            font-size: 0.97rem;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Stutter Detector</h1>
-    </header>
-    <main>
+    <div class="container">
+        <h1>Stutter Detection</h1>
         <div class="description">
-            Upload your audio file to detect stuttering patterns automatically.
+            This tool analyzes your audio and detects stuttering patterns using advanced AI.<br>
+            Click the button below to start the detection process.
         </div>
-        <form class="upload-section">
-            <input type="file" accept="audio/*">
-            <button type="submit">Detect Stutter</button>
-        </form>
-        <div class="results" id="results">
-            <!-- Detection results will appear here -->
+        <div class="action-section">
+            <button id="detectBtn">Detect Stutter</button>
+            <textarea class="results-box" id="resultsBox" readonly placeholder="Detection results will appear here..."></textarea>
         </div>
-    </main>
+    </div>
     <footer>
         &copy; 2025 Stutter Detector Project
     </footer>
+    <script>
+        document.getElementById('detectBtn').addEventListener('click', async function() {
+            const resultsBox = document.getElementById('resultsBox');
+            resultsBox.value = 'Detecting...';
+            try {
+                // Replace '/api/detect-stutter' with your actual backend API endpoint
+                const response = await fetch('http://127.0.0.1:8000/stutter_detection', {
+                    method: 'POST'
+                });
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+                const data = await response.json();
+                resultsBox.value =  JSON.stringify(data);
+            } catch (err) {
+                resultsBox.value = 'Error: ' + err.message;
+            }
+        });
+    </script>
 </body>
 </html>
