@@ -6,6 +6,8 @@ from src.stutter_detector.audioAnalysisService import audioAnalysisService
 from src.stutter_detector.whisperService import WhisperService
 from src.stutter_detector.feedbackService import FeedbackService
 from src.stutter_detector.mockComponentsService import MockComponentsService
+import asyncio
+import traceback
 
 logging.basicConfig(
     level=logging.INFO,
@@ -31,31 +33,64 @@ class DetectorService:
         # ===================
         # Audio input 
         # ===================    
-        logger.info("starting stutter detection...")
-        logger.info("Recording")
-        raw_audio = await self.microphone_service.start_recording()  
-        if not raw_audio:
-            raise HTTPException(status_code=400, detail="Error in recording audio function")
-        logger.info("Recording stopped")
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                logger.info("starting stutter detection...")
+                logger.info("Recording")
+                raw_audio = await self.microphone_service.start_recording()  
+                logger.info("Recording stopped")
+                break
+            except Exception as e:
+                logger.error(f"Error in recording audio function: {e}")
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying recording in 5 seconds...")
+                    await asyncio.sleep(5)  # Wait for 5 seconds before retrying
+                else:
+                    raise HTTPException(status_code=500, detail="Error in recording audio function")
+
+        audioPath = raw_audio["audiofilepath"]
 
         # ===================
         # Audio Cleaning 
         # ===================
         # logger.info()
-        logger.info("Cleaning audio...")
-        cleaned_audio = await self.audio_clean_service.preprocess_audio(raw_audio["audiofilepath"])
-        if not cleaned_audio:
-            raise HTTPException(status_code=400, detail="Error in cleaning audio function")
-        logger.info("Cleaning done")
+        try: 
+            logger.info("Cleaning audio...")
+            cleaned_audio = await self.audio_clean_service.preprocess_audio(audioPath)
+            logger.info("Cleaning done")
+        except Exception as e:
+            logger.error(f"Audio cleaning failed: {e}")
+            logger.error(traceback.format_exc())
+            raise HTTPException(status_code=500, detail="Audio cleaning failed")
+
+
         # ===================
         # Audio Transcription 
         # =================== 
         # logger.info()
-        logger.info("Transcribing audio...")
-        transcription = await self.whisper_service.transcribe(raw_audio["audiofilepath"])
-        if not transcription:
-            raise HTTPException(status_code=400, detail="Error in transcribing audio function")
-        logger.info("Transcription donw")
+        for attempt in range(max_retries):
+            try: 
+                logger.info("Transcribing audio...")
+                transcription = await self.whisper_service.transcribe(raw_audio["audiofilepath"])
+                logger.info("Transcription done")
+                break
+            except Exception as e:
+                logger.error(f"Transcription failed: {e}")
+                logger.error(traceback.format_exc())
+                if attempt == max_retries - 1:
+                # fallback: partial result
+                    logger.warning("Transcription failed after retries. Returning partial results.")
+                    return {
+                        "repetitions": [],
+                        "blocks": [],
+                        "prolongations": [],
+                        "transcription": None,
+                        "fillers": [],
+                        "repeated_words": []
+                    }
+            
+        
 
         
 
@@ -64,10 +99,14 @@ class DetectorService:
         # Audio Analysis 
         # ===================
         # logger.info
-        logger.info("Analysing Audio")
-        mfccFeatures = await self.audio_analysis_service.extractMFCC(cleaned_audio["cleanedAudio"], cleaned_audio["sr"])
-        if not mfccFeatures:
-            raise HTTPException(status_code=400, detail="Error in extracting MFCC features function")
+        try: 
+            logger.info("Analysing Audio")
+            mfccFeatures = await self.audio_analysis_service.extractMFCC(cleaned_audio["cleanedAudio"], cleaned_audio["sr"])
+            
+            
+        except Exception as e:
+            logger.error(f"MFCC extraction failed: {e}")
+        
 
         # ===================
         # Feature detection
