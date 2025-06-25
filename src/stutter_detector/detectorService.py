@@ -52,7 +52,10 @@ class DetectorService:
             logger.info("Cleaning audio...")
             cleaned_audio = await self.audio_clean_service.preprocess_audio(audioPath)
             logger.info("Cleaning done")
-            return cleaned_audio["processedAudio"]["filepath"]
+            return {
+                "audioPath":cleaned_audio["cleanedAudio"],
+                "sr": cleaned_audio["sr"],
+            }
         except Exception as e:
             logger.error(f"Audio cleaning failed: {e}")
             logger.error(traceback.format_exc())
@@ -107,6 +110,32 @@ class DetectorService:
         repeatedWords_detected = repeatedWords
         return repeatedWords_detected
                     
+    async def detectRepeatedSyllables(self, audio,sr):
+        try:
+            mfcc = await self.audio_analysis_service.extractMFCC(audio,sr)
+            repeatedSyllables = self.audio_analysis_service.detect_repetitions(mfcc["sr"], mfcc["mfcc"])
+            return repeatedSyllables
+        except Exception as e:
+            logger.error(f"Repeated syllables detection failed: {e}")
+            repeatedSyllables = None
+            return repeatedSyllables
+    def detectProlongation(self, audio, sr):
+        try:
+            prolongations = self.audio_analysis_service.detect_prolongation(audio, sr)
+            return prolongations
+        except Exception as e:
+            logger.error(f"Prolongation detection failed: {e}")
+            prolongations = None
+            return prolongations
+    def detectBlock(self, audio, sr):
+        try:
+            blocks = self.audio_analysis_service.detect_block(audio, sr)
+            return blocks
+        except Exception as e:
+            logger.error(f"Block detection failed: {e}")
+            blocks = None
+            return blocks
+        
 
 
 
@@ -228,13 +257,21 @@ class DetectorService:
         print(audio)
 
         cleaned_audio = await self.audioCleaning_service(audio)
-        print(cleaned_audio)
+        print(cleaned_audio["audioPath"])
         transcription = await self.audioTranscription_service(audio)
         print(transcription)
         fillers = await self.detect_fillers(transcription)
         print(fillers)
         repeatedWords = await self.detectRepeatedWords(transcription)
         print(repeatedWords)
+        cleanedAudioPath = cleaned_audio["audioPath"]
+        sr = cleaned_audio["sr"]
+        repeatedSyllables = await self.detectRepeatedSyllables(cleanedAudioPath, sr)
+        blocks = self.detectBlock(cleanedAudioPath, sr)
+        prolongations = self.detectProlongation(cleanedAudioPath, sr)
+        print(f"repeatedSyllables: {repeatedSyllables}")
+        print(f"blocks: {blocks}")
+        print(f"prolongations: {prolongations}")
         # ===================
         # Audio Cleaning 
         # ===================
