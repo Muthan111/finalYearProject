@@ -58,7 +58,55 @@ class DetectorService:
             logger.error(traceback.format_exc())
             raise HTTPException(status_code=500, detail="Audio cleaning failed")
     
+    async def audioTranscription_service(self, audioPath):
+        max_retries = 2
+        for attempt in range(max_retries):
+            try: 
+                logger.info("Transcribing audio...")
+                transcription = await self.whisper_service.transcribe(audioPath)
+                logger.info("Transcription done")
+                break
+            except Exception as e:
+                logger.error(f"Transcription failed: {e}")
+                logger.error(traceback.format_exc())
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying recording in 5 seconds...")
+                    await asyncio.sleep(5)  # Wait for 5 seconds before retrying
+                else:
+                    raise HTTPException(status_code=500, detail="Error in recording audio function")
+        transcribedText = transcription
+        return transcribedText
+    async def detect_fillers(self, transcription):
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                fillers = self.whisper_service.fillers(transcription)
+                break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying recording in 5 seconds...")
+                    await asyncio.sleep(5)  # Wait for 5 seconds before retrying
+                else:
+                    fillers = None
+        fillers_detected = fillers
+        return fillers_detected
+    
+    async def detectRepeatedWords(self, transcription):
+        max_retries = 2
+        for attempt in range(max_retries):
+            try:
+                repeatedWords = self.whisper_service.repeatedWords(transcription)
+                break
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    logger.info(f"Retrying recording in 5 seconds...")
+                    await asyncio.sleep(5)
 
+                else:
+                    repeatedWords = None
+        repeatedWords_detected = repeatedWords
+        return repeatedWords_detected
+                    
 
 
 
@@ -181,6 +229,12 @@ class DetectorService:
 
         cleaned_audio = await self.audioCleaning_service(audio)
         print(cleaned_audio)
+        transcription = await self.audioTranscription_service(audio)
+        print(transcription)
+        fillers = await self.detect_fillers(transcription)
+        print(fillers)
+        repeatedWords = await self.detectRepeatedWords(transcription)
+        print(repeatedWords)
         # ===================
         # Audio Cleaning 
         # ===================
