@@ -73,10 +73,11 @@ class DetectorService:
                 logger.error(f"Transcription failed: {e}")
                 logger.error(traceback.format_exc())
                 if attempt < max_retries - 1:
-                    logger.info(f"Retrying recording in 5 seconds...")
+                    logger.info(f"Retrying transcription in 5 seconds...")
                     await asyncio.sleep(5)  # Wait for 5 seconds before retrying
                 else:
-                    raise HTTPException(status_code=500, detail="Error in recording audio function")
+                    # raise HTTPException(status_code=500, detail="Error in transcription audio function")
+                    transcription = None
         transcribedText = transcription
         return transcribedText
     async def detect_fillers(self, transcription):

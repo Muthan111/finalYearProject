@@ -1,8 +1,7 @@
 fastapi[standard]>=0.95.0
-openai-whisper
 pydub
 librosa==0.10.1
-numpy==1.26.4
+numpy>=2.1.0
 scikit-learn==1.4.2
 noisereduce==2.0.1
 soundfile==0.12.1

@@ -1,6 +1,6 @@
 from fastapi import FastAPI,Request
 # from src.calculator.router import calculator_router
-from src.whisperAi.router import whisper_router
+# from src.whisperAi.router import whisper_router
 from src.stutter_detector.router import stutter_router
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware

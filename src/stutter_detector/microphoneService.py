@@ -28,15 +28,19 @@ class MicrophoneService:
         self.stream.stop_stream()
         self.stream.close()
         self.p.terminate()
-
-        filepath = "../recordings"
-        audioSaved = self.save_audio(self.frames, "recording", filepath)
-        audiofilename = audioSaved["filename"]
-        audiofilepath = audioSaved["filepath"]
-        return {
-        "audiofile": audiofilename,
-        "audiofilepath": audiofilepath,
-    }
+        if len(self.frames) == 0:
+            print("No audio data captured. Please check your microphone settings.")
+        else:
+            filepath = "../recordings"
+            audioSaved = self.save_audio(self.frames, "recording", filepath)
+            audiofilename = audioSaved["filename"]
+            audiofilepath = audioSaved["filepath"]
+            return {
+            "audiofile": audiofilename,
+            "audiofilepath": audiofilepath,
+            
+        
+        }
     
     def save_audio(self,frames, inputename, filepath):
         os.makedirs(filepath, exist_ok=True)  # Ensure the directory exists
