@@ -33,10 +33,7 @@ class DetectorService:
         max_retries = 2
         for attempt in range(max_retries):
             try:
-                logger.info("starting stutter detection...")
-                logger.info("Recording")
                 raw_audio = await self.microphone_service.start_recording()  
-                logger.info("Recording stopped")
                 break
             except Exception as e:
                 logger.error(f"Error in recording audio function: {e}")
@@ -46,10 +43,13 @@ class DetectorService:
                 else:
                     raise HTTPException(status_code=500, detail="Error in recording audio function")
         recorded_audio = raw_audio["audiofilepath"]
-        return recorded_audio
+        displayURL = raw_audio["audioDisplayURL"]
+        return {
+            "audioPath": recorded_audio,
+            "audioDisplayURL": displayURL,
+        }
     async def audioCleaning_service(self, audioPath):
         try: 
-            logger.info("Cleaning audio...")
             cleaned_audio = await self.audio_clean_service.preprocess_audio(audioPath)
             logger.info("Cleaning done")
             return {
@@ -142,26 +142,57 @@ class DetectorService:
 
 
     async def detect_stutter(self):
+        logger.info("Starting stutter detection process...")
         #  ===================
-        # Audio input 
+        # Start Microphone 
         # ===================    
         audio = await self.start_microphone_service()
+        audioPath = audio["audioPath"]
+        audioDisplayURL = audio["audioDisplayURL"]
         print(audio)
 
-        cleaned_audio = await self.audioCleaning_service(audio)
-        print(cleaned_audio["audioPath"])
-        transcription = await self.audioTranscription_service(audio)
-        print(transcription)
-        fillers = await self.detect_fillers(transcription)
-        print(fillers)
-        repeatedWords = await self.detectRepeatedWords(transcription)
-        print(repeatedWords)
+        # ===================
+        # Clean Audio
+        # ===================
+        logger.info("Cleaning audio...")
+        cleaned_audio = await self.audioCleaning_service(audioPath)
         cleanedAudioPath = cleaned_audio["audioPath"]
         sr = cleaned_audio["sr"]
+
+        # ===================
+        # Transcribe Audio
+        # ===================
+        logger.info("Transcribing audio...")
+        transcription = await self.audioTranscription_service(audioPath)
+        print(transcription)
+
+        # ===================
+        # Detect Fillers
+        # ===================
+        logger.info("Detecting fillers...")
+        fillers = await self.detect_fillers(transcription)
+        print(fillers)
+
+        # ===================
+        # Detect Repeated Words
+        # ===================
+        logger.info("Detecting repeated words...")
+        repeatedWords = await self.detectRepeatedWords(transcription)
+        print(repeatedWords)
+        
+        # ===================
+        # Detect Repeated Syllables, Blocks, and Prolongations
+        # ===================
         repeatedSyllables = await self.detectRepeatedSyllables(cleanedAudioPath, sr)
         blocks = self.detectBlock(cleanedAudioPath, sr)
         prolongations = self.detectProlongation(cleanedAudioPath, sr)
-        print(f"repeatedSyllables: {repeatedSyllables}")
-        print(f"blocks: {blocks}")
-        print(f"prolongations: {prolongations}")
+        return {
+            "audioDisplayURL": audioDisplayURL,
+            "transcription": transcription,
+            "fillers": fillers,
+            "repeatedWords": repeatedWords,
+            "repeatedSyllables": repeatedSyllables,
+            "blocks": blocks,
+            "prolongations": prolongations
+        }
         

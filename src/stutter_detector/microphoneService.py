@@ -14,6 +14,7 @@ class MicrophoneService:
     
 
     async def start_recording(self):
+        audioDisplayURL = "http://127.0.0.1:8000/static"
         self.p = pyaudio.PyAudio()
         self.stream = self.p.open(format=self.format,
                                    channels=self.channels,
@@ -31,13 +32,15 @@ class MicrophoneService:
         if len(self.frames) == 0:
             print("No audio data captured. Please check your microphone settings.")
         else:
-            filepath = "../recordings"
+            filepath = "recordings"
             audioSaved = self.save_audio(self.frames, "recording", filepath)
             audiofilename = audioSaved["filename"]
             audiofilepath = audioSaved["filepath"]
+            audioDisplayURL = os.path.join(audioDisplayURL, audiofilename)
             return {
             "audiofile": audiofilename,
             "audiofilepath": audiofilepath,
+            "audioDisplayURL": audioDisplayURL,
             
         
         }

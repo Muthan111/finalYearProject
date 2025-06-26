@@ -1,3 +1,5 @@
+# setting up venv
+py -3.10 -m venv myenv
 # Activate the Scripts
 myenv/Scripts/Activate  
 

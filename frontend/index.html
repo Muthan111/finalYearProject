@@ -80,17 +80,27 @@
             This tool analyzes your audio and detects stuttering patterns using advanced AI.<br>
             Click the button below to start the detection process.
         </div>
+        </div>
+    <div class="audio-section" style="margin-top: 20px;">
+    <h3>Detected Audio</h3>
+    <audio id="backendAudio" controls>
+        <source id="backendAudioSource" src="" type="audio/wav">
+        Your browser does not support the audio element.
+    </audio>
+    </div>
         <div class="action-section">
             <button id="detectBtn">Detect Stutter</button>
             <textarea class="results-box" id="resultsBox" readonly placeholder="Detection results will appear here..."></textarea>
         </div>
-    </div>
+    
     <footer>
         &copy; 2025 Stutter Detector Project
     </footer>
     <script>
         document.getElementById('detectBtn').addEventListener('click', async function() {
             const resultsBox = document.getElementById('resultsBox');
+            const audioElement = document.getElementById('backendAudio');
+        const audioSource = document.getElementById('backendAudioSource');
             resultsBox.value = 'Detecting...';
             try {
                 // Replace '/api/detect-stutter' with your actual backend API endpoint
@@ -102,6 +112,14 @@
                 }
                 const data = await response.json();
                 resultsBox.value =  JSON.stringify(data);
+                if (data.audioDisplayURL) {
+                audioSource.src = data.audioDisplayURL;
+                audioElement.style.display = 'block';
+                audioElement.load();
+                audioElement.play();}
+                else {
+                console.warn("No audio URL found in response.");
+            } // Optional: autoplay
             } catch (err) {
                 resultsBox.value = 'Error: ' + err.message;
             }
