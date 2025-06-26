@@ -8,6 +8,7 @@ from src.stutter_detector.feedbackService import FeedbackService
 from src.stutter_detector.mockComponentsService import MockComponentsService
 import asyncio
 import traceback
+# testing blocks here
 
 logging.basicConfig(
     level=logging.INFO,
@@ -67,6 +68,8 @@ class DetectorService:
             try: 
                 logger.info("Transcribing audio...")
                 transcription = await self.whisper_service.transcribe(audioPath)
+                paragraphsText = transcription["text"]
+                wordLevelTimeStamps = transcription["words"]
                 logger.info("Transcription done")
                 break
             except Exception as e:
@@ -78,8 +81,13 @@ class DetectorService:
                 else:
                     # raise HTTPException(status_code=500, detail="Error in transcription audio function")
                     transcription = None
-        transcribedText = transcription
-        return transcribedText
+        transcribedText = paragraphsText
+        wordTimeStamps = wordLevelTimeStamps
+        return {
+            "transcription": transcribedText,
+            "wordTimeStamps": wordTimeStamps,
+        }
+    
     async def detect_fillers(self, transcription):
         max_retries = 2
         for attempt in range(max_retries):
@@ -128,9 +136,18 @@ class DetectorService:
             logger.error(f"Prolongation detection failed: {e}")
             prolongations = None
             return prolongations
-    def detectBlock(self, audio, sr):
-        try:
-            blocks = self.audio_analysis_service.detect_block(audio, sr)
+    # def detectBlock(self, audio, sr):
+    #     try:
+    #         blocks = self.audio_analysis_service.detect_blocks(audio, sr)
+    #         return blocks
+    #     except Exception as e:
+    #         logger.error(f"Block detection failed: {e}")
+    #         blocks = None
+    #         return blocks
+    def detectBlock(self, alignment):
+        try: 
+            
+            blocks = self.audio_analysis_service.detect_blocks_phoneme(alignment)
             return blocks
         except Exception as e:
             logger.error(f"Block detection failed: {e}")
@@ -164,35 +181,39 @@ class DetectorService:
         # ===================
         logger.info("Transcribing audio...")
         transcription = await self.audioTranscription_service(audioPath)
-        print(transcription)
+        transcribedText = transcription["transcription"]
+        wordTimeStamps = transcription["wordTimeStamps"]
+        print(wordTimeStamps)
+        print(transcribedText)
 
-        # ===================
-        # Detect Fillers
-        # ===================
-        logger.info("Detecting fillers...")
-        fillers = await self.detect_fillers(transcription)
-        print(fillers)
+        # # ===================
+        # # Detect Fillers
+        # # ===================
+        # logger.info("Detecting fillers...")
+        # fillers = await self.detect_fillers(transcription)
+        # print(fillers)
 
-        # ===================
-        # Detect Repeated Words
-        # ===================
-        logger.info("Detecting repeated words...")
-        repeatedWords = await self.detectRepeatedWords(transcription)
-        print(repeatedWords)
+        # # ===================
+        # # Detect Repeated Words
+        # # ===================
+        # logger.info("Detecting repeated words...")
+        # repeatedWords = await self.detectRepeatedWords(transcription)
+        # print(repeatedWords)
         
         # ===================
         # Detect Repeated Syllables, Blocks, and Prolongations
         # ===================
-        repeatedSyllables = await self.detectRepeatedSyllables(cleanedAudioPath, sr)
-        blocks = self.detectBlock(cleanedAudioPath, sr)
-        prolongations = self.detectProlongation(cleanedAudioPath, sr)
+        # repeatedSyllables = await self.detectRepeatedSyllables(cleanedAudioPath, sr)
+        # blocks = self.detectBlock(cleanedAudioPath, sr)
+        blocks = self.detectBlock(wordTimeStamps)
+        # prolongations = self.detectProlongation(cleanedAudioPath, sr)
         return {
-            "audioDisplayURL": audioDisplayURL,
-            "transcription": transcription,
-            "fillers": fillers,
-            "repeatedWords": repeatedWords,
-            "repeatedSyllables": repeatedSyllables,
+            # "audioDisplayURL": audioDisplayURL,
+            # "transcription": transcription,
+            # "fillers": fillers,
+            # "repeatedWords": repeatedWords,
+            # "repeatedSyllables": repeatedSyllables,
             "blocks": blocks,
-            "prolongations": prolongations
+            # "prolongations": prolongations
         }
         

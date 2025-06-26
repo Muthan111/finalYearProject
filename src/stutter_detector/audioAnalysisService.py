@@ -18,8 +18,8 @@ class audioAnalysisService:
             mfcc = librosa.feature.mfcc(y=audio_file, sr=sr, n_mfcc=self.n_mfcc)
             mfcc_db = (mfcc - np.mean(mfcc)) / (np.std(mfcc) + 1e-6)
             return {
-                "mfcc": mfcc,
-                "mfcc_db": mfcc_db,
+                "mfcc": mfcc_db,
+                # "mfcc_db": mfcc_db,
                 "sr": sr
             }
         return await asyncio.to_thread(compute_mfcc)
@@ -69,15 +69,53 @@ class audioAnalysisService:
                     starts.append(i - count)
                 count = 0
         return [librosa.frames_to_time(s, sr=sr).item() for s in starts]
-    def detect_block(self, audio,sr):
-        energy = librosa.feature.rms(y=audio)[0]
-        smoothed_energy = np.convolve(energy, np.ones(5)/5, mode='same')
-        silent = smoothed_energy < self.silent_thresh
+    # def detect_blocks(self, audio, sr):
+    #     energy = librosa.feature.rms(y=audio)[0]
+    #     smoothed_energy = np.convolve(energy, np.ones(5)/5, mode='same')
+    #     silent = smoothed_energy < self.silent_thresh
 
-        first_speech = np.argmax(~silent)
-        start_time = librosa.frames_to_time(first_speech, sr=sr)
+    #     block_times = []
 
-        if start_time > self.block_thresh:
-            return [start_time]
-        return []
+    #     # Step 1: Detect initial block (silence at the beginning)
+    #     silent_duration_frames = 0
+    #     for s in silent:
+    #         if s:
+    #             silent_duration_frames += 1
+    #         else:
+    #             break  # speech has started
+    #     if silent_duration_frames > 0:
+    #         start_time = librosa.frames_to_time(silent_duration_frames, sr=sr)
+    #         if start_time > self.block_thresh:
+    #             block_times.append(start_time)
+
+    #     # Step 2: Detect mid-speech blocks
+    #     in_silence = False
+    #     silence_start = 0
+
+    #     for i, is_silent in enumerate(silent):
+    #         if is_silent and not in_silence:
+    #             # entering a silent segment
+    #             in_silence = True
+    #             silence_start = i
+    #         elif not is_silent and in_silence:
+    #             # exiting a silent segment
+    #             in_silence = False
+    #             silence_duration = librosa.frames_to_time(i - silence_start, sr=sr)
+    #             if silence_duration > self.block_thresh:
+    #                 # Register block mid-speech
+    #                 block_time = librosa.frames_to_time(silence_start, sr=sr)
+    #                 block_times.append(block_time)
+
+    #     return block_times
+    def detect_blocks_phoneme(self, alignment ):
+        block_thresh=0.5
+        blocks = []
+        prev_end = 0
+        for word in alignment:
+            start = float(word['start'])
+            if start - prev_end > block_thresh:
+                blocks.append(prev_end)
+            prev_end = float(word['end'])
+        return blocks
+
     

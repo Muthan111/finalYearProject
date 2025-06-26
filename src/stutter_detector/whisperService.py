@@ -21,15 +21,31 @@ class WhisperService:
     #     return self.result["text"]
     async def transcribe(self, audio_file):
         await asyncio.sleep(0)
+        
         segments, info = self.model.transcribe(
-            audio_file, 
-            language=self.language, 
+            audio_file,
+            language=self.language,
             initial_prompt=self.initialPrompt,
             word_timestamps=True
         )
 
-        full_text = " ".join([segment.text for segment in segments])
-        return  full_text
+        full_text = ""
+        word_timestamps = []
+
+        for segment in segments:
+            full_text += segment.text + " "
+            if segment.words:  # only if words are available
+                for word in segment.words:
+                    word_timestamps.append({
+                        "word": word.word.strip(),
+                        "start": float(word.start),
+                        "end": float(word.end)
+                    })
+
+        return {
+            "text": full_text.strip(),
+            "words": word_timestamps
+        }
         
     def repeatedWords(self,transcript):
         repeated_words = re.findall(r'\b(\w+)(?:[ -]+\1\b)+', transcript.lower())
