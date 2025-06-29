@@ -5,11 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 templates = Jinja2Templates(directory="frontend")
 from fastapi.staticfiles import StaticFiles
 import os
+from src.middleware.loggerMiddleware import LoggingMiddleware
 app = FastAPI(
     title="Stutter Detection API",
     description="API for detecting stutter in audio files using Whisper AI and custom stutter detection logic.",
     version="1.0.0",
 )
+app.add_middleware(LoggingMiddleware)
+
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECORDING_PATH = os.path.join(BASE_DIR, 'recordings')

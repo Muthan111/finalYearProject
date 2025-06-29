@@ -1,13 +1,13 @@
 from fastapi import APIRouter, File,Request, UploadFile,HTTPException
 from fastapi.responses import HTMLResponse
-from src.stutter_detector.detectorService import DetectorService
+from src.stutter_detector.service import stutterDetectorService
 # from src.stutter_detector.TestPipelineService import TestPipelineService
 from fastapi.templating import Jinja2Templates
 import os
 import shutil
 templates = Jinja2Templates(directory="frontend")
 stutter_router = APIRouter()
-stutter_service = DetectorService()
+stutter_service = stutterDetectorService()
 # PipelinetTestService = TestPipelineService()
 
 

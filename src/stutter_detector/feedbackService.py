@@ -1,12 +1,13 @@
 import os
 from dotenv import load_dotenv
 import google.generativeai as genai
-
+from src.utils.logger import logger
 load_dotenv()
 api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=api_key)
 class FeedbackService:
     def __init__(self):
+        logger.info("Feedback Service initialized.")
         self.feedback = []
         self.model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -55,6 +56,7 @@ class FeedbackService:
     def return_feedback(self):
         return self.feedback
     def personalized_feedback(self,detectionFeedback):
+        logger.info("Generating personalized feedback...")
         try:
             prompt = f"""
             You are a feedback generator for stuttering detection.
@@ -64,11 +66,13 @@ class FeedbackService:
             The feedback should be concise, encouraging, and provide actionable advice for improvement.
             """
             response = self.model.generate_content(prompt)
+            logger.info("Personalized feedback generated successfully.")
             return response.text
         except Exception as e:
             print(f"Error generating personalized feedback: {e}")
             response = None
             return response
     def clear_feedback(self):
+        logger.info("Clearing feedback list.")
         self.feedback = []
         return self.feedback

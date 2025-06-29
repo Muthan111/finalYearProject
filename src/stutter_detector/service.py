@@ -1,0 +1,92 @@
+import logging
+from fastapi import HTTPException
+from src.stutter_detector.microphoneService import MicrophoneService
+from src.stutter_detector.audioCleanService import AudioCleanService
+from src.stutter_detector.audioAnalysisService import audioAnalysisService
+from src.stutter_detector.whisperService import WhisperService
+from src.stutter_detector.feedbackService import FeedbackService
+from src.stutter_detector.mockComponentsService import MockComponentsService
+from src.stutter_detector.detector_service import DetectorService
+import asyncio
+import traceback
+from src.utils.logger import logger
+# testing blocks here
+
+
+
+class stutterDetectorService:
+    def __init__(self):
+        self.result = None
+        self.microphone_service = MicrophoneService()
+        self.audio_clean_service = AudioCleanService()
+        self.audio_analysis_service = audioAnalysisService()
+        self.whisper_service = WhisperService()
+        self.feedback = FeedbackService()
+        self.MockComponents = MockComponentsService()
+        self.detector_service = DetectorService()
+        self.language = "en"
+
+    
+    
+    
+   
+    
+    
+    
+    
+
+
+
+
+    async def detect_stutter(self):
+        # ===================
+        # clear previous feedback
+        # ===================
+        self.feedback.clear_feedback()
+        #  ===================
+        # Start Microphone 
+        # ===================    
+        audio = await self.microphone_service.start_recording()
+        audioPath = audio["audiofilepath"]
+        audioDisplayURL = audio["audioDisplayURL"]
+
+        # ===================
+        # Clean Audio
+        # ===================
+        cleaned_audio = await self.audio_clean_service.preprocess_audio(audioPath)
+        cleanedAudioPath = cleaned_audio["cleanedAudio"]
+        sr = cleaned_audio["sr"]
+
+        # # ===================
+        # # Transcribe Audio
+        # # ===================
+        transcription = await self.whisper_service.transcribe(cleanedAudioPath)
+        text_transcription = transcription["text"]
+        alignment = transcription["words"]
+
+        # ===================
+        # Extract MFCC
+        # ===================
+        mfcc = await self.audio_analysis_service.extractMFCC(cleanedAudioPath, sr)
+        extracted_mfcc = mfcc["mfcc"]
+        sr = mfcc["sr"]
+        
+        # ===================
+        # Detect Stutters
+        # ===================
+        detection= await self.detector_service.detect_stutters(
+            audio=cleanedAudioPath,
+            transcription=text_transcription,
+            sr=sr,
+            alignment=alignment,
+            mfcc=extracted_mfcc
+        )
+        final_result = self.feedback.personalized_feedback(detection)
+        return final_result
+
+        
+        
+        
+
+        
+        
