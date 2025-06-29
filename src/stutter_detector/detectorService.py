@@ -159,6 +159,11 @@ class DetectorService:
 
 
     async def detect_stutter(self):
+        # ===================
+        # clear previous feedback
+        # ===================
+
+        self.feedback.clear_feedback()
         logger.info("Starting stutter detection process...")
         #  ===================
         # Start Microphone 
@@ -217,6 +222,10 @@ class DetectorService:
         self.feedback.repeated_words_feedback(repeatedWords)
         self.feedback.fillers_feedback(fillers)
         Feedback = self.feedback.return_feedback()
+        # ===================
+        # Generate Personalized Feedback
+        # ===================
+        personalized_feedback = self.feedback.personalized_feedback(Feedback)
         return {
             "audioDisplayURL": audioDisplayURL,
             "transcription": transcribedText,
@@ -226,6 +235,7 @@ class DetectorService:
             "blocks": blocks,
             "prolongations": prolongations,
             "feedback": Feedback,
+            "personalizedFeedback": personalized_feedback,
            
         }
         
