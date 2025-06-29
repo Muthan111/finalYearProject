@@ -2,10 +2,9 @@ import logging
 from fastapi import HTTPException
 from src.stutter_detector.microphoneService import MicrophoneService
 from src.stutter_detector.audioCleanService import AudioCleanService
-from src.stutter_detector.audioAnalysisService import audioAnalysisService
+from src.stutter_detector.audioAnalysisService import AudioAnalysisService
 from src.stutter_detector.whisperService import WhisperService
 from src.stutter_detector.feedbackService import FeedbackService
-from src.stutter_detector.mockComponentsService import MockComponentsService
 from src.stutter_detector.detector_service import DetectorService
 import asyncio
 import traceback
@@ -19,10 +18,9 @@ class stutterDetectorService:
         self.result = None
         self.microphone_service = MicrophoneService()
         self.audio_clean_service = AudioCleanService()
-        self.audio_analysis_service = audioAnalysisService()
+        self.audio_analysis_service = AudioAnalysisService()
         self.whisper_service = WhisperService()
         self.feedback = FeedbackService()
-        self.MockComponents = MockComponentsService()
         self.detector_service = DetectorService()
         self.language = "en"
 

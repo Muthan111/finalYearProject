@@ -12,19 +12,19 @@ class WhisperService:
         self.result = None
         self.model = WhisperModel("medium.en", device="cpu", compute_type="int8")
         self.language = "en"
-        self.initialPrompt = "uh um like you know so"
+        self.initial_prompt = "uh um like you know so"
 
     
     async def transcribe(self, audio_file):
         logger.info(f"Transcribing audio file")
         await asyncio.sleep(0)
-        maxRetries = 2
-        for attempt in range(maxRetries):
+        max_retries = 2
+        for attempt in range(max_retries):
             try: 
                 segments, info = self.model.transcribe(
                 audio_file,
                 language=self.language,
-                initial_prompt=self.initialPrompt,
+                initial_prompt=self.initial_prompt,
                 word_timestamps=True
             )
 
@@ -41,22 +41,28 @@ class WhisperService:
                                 "end": float(word.end)
                             })
 
+                logger.info("Transcription completed successfully.")
                 
-                    return {
+                return {
                         "text": full_text.strip(),
                         "words": word_timestamps
                     }
-                logger.info("Transcription completed successfully.")
-                break
+                
+                
+            
             except Exception as e:
                 logger.error(f"Transcription failed: {e}")
                 logger.error(traceback.format_exc())
-                if attempt < maxRetries - 1:
+                if attempt < max_retries - 1:
                     logger.info(f"Retrying transcription in 5 seconds...")
                     await asyncio.sleep(5)  # Wait for 5 seconds before retrying
                 else:
-                    # raise HTTPException(status_code=500, detail="Error in transcription audio function")
+                    logger.error("Transcription failed after multiple attempts.")
+                    logger.error(traceback.format_exc())
                     transcription = None
+                    raise HTTPException(status_code=500, detail="Transcription failed")
+            
+                    
         
         
         

@@ -12,20 +12,20 @@ class AudioCleanService:
     def __init__(self):
         logger.info("Audio Clean Service initialized.")
         self.pre_emphasis = 0.97
-    def save_processed_audio(self, audio, inputename, filepath):
-        os.makedirs(filepath, exist_ok=True)  
-        audioId = 0
+    def save_processed_audio(self, audio, input_name, file_path):
+        os.makedirs(file_path, exist_ok=True)  
+        audio_Id = 0
         while True:
-            filename = f"{inputename}_{audioId}.wav"
-            if not os.path.exists(os.path.join(filepath, filename)):
+            file_name = f"{input_name}_{audio_Id}.wav"
+            if not os.path.exists(os.path.join(file_path, file_name)):
                 break
-            audioId += 1
-        full_path = os.path.join(filepath, filename)
+            audio_Id += 1
+        full_path = os.path.join(file_path, file_name)
         sr = 16000  
         sf.write(full_path, audio, sr)
         return {
-            "audioId": audioId,
-            "filename": filename,
+            "audioId": audio_Id,
+            "filename": file_name,
             "filepath": full_path
         }
     async def preprocess_audio(self, file):
@@ -36,13 +36,13 @@ class AudioCleanService:
                 pre_emphasis = self.pre_emphasis
                 pre_emp_audio = np.append(audio[0], audio[1:] - pre_emphasis * audio[:-1])
                 reduced_noise = nr.reduce_noise(y=pre_emp_audio, sr=sr)
-                processedAudio = self.save_processed_audio(reduced_noise, "processedAudio", "processed_audio_directory")
+                processed_audio = self.save_processed_audio(reduced_noise, "processedAudio", "processed_audio_directory")
                 logger.info("Audio cleaning completed successfully.")
                 return {
                 "duration_seconds": len(reduced_noise) / sr,
                 "sr": sr,
                 "cleanedAudio": reduced_noise,
-                "processedAudio": processedAudio 
+                "processedAudio": processed_audio 
 
                 }
                 

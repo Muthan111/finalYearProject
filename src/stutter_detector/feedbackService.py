@@ -55,13 +55,13 @@ class FeedbackService:
         return self.feedback
     def return_feedback(self):
         return self.feedback
-    def personalized_feedback(self,detectionFeedback):
+    def personalized_feedback(self,detection_feedback):
         logger.info("Generating personalized feedback...")
         try:
             prompt = f"""
             You are a feedback generator for stuttering detection.
             The voice recording has been analyzed and the following feedback has been generated:
-            {detectionFeedback}
+            {detection_feedback}
             Generate a personalized feedback message based on the provided feedback.
             The feedback should be concise, encouraging, and provide actionable advice for improvement.
             """

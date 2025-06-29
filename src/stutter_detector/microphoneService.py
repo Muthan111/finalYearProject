@@ -21,9 +21,9 @@ class MicrophoneService:
 
     async def start_recording(self):
         logger.info("Starting audio recording...")
-        audioDisplayURL = "http://127.0.0.1:8000/static"
-        maxRetries = 2
-        for attempt in range(maxRetries):
+        audio_displayURL = "http://127.0.0.1:8000/static"
+        max_retries = 2
+        for attempt in range(max_retries):
             try:
                 self.p = pyaudio.PyAudio()
                 self.stream = self.p.open(format=self.format,
@@ -42,21 +42,21 @@ class MicrophoneService:
                 if len(self.frames) == 0:
                     print("No audio data captured. Please check your microphone settings.")
                 else:
-                    filepath = "recordings"
-                    audioSaved = self.save_audio(self.frames, "recording", filepath)
-                    audiofilename = audioSaved["filename"]
-                    audiofilepath = audioSaved["filepath"]
-                    audioDisplayURL = os.path.join(audioDisplayURL, audiofilename)
+                    file_path = "recordings"
+                    audio_Saved = self.save_audio(self.frames, "recording", file_path)
+                    audio_filename = audio_Saved["filename"]
+                    audio_filepath = audio_Saved["filepath"]
+                    website_audio = os.path.join(audio_displayURL, audio_filename)
                     logger.info("Audio recording completed successfully.")
                     return {
-                    "audiofile": audiofilename,
-                    "audiofilepath": audiofilepath,
-                    "audioDisplayURL": audioDisplayURL,
+                    "audiofile": audio_filename,
+                    "audiofilepath": audio_filepath,
+                    "audioDisplayURL": website_audio,
                     
                 
                 }
             except Exception as e:
-                if attempt < maxRetries - 1:
+                if attempt < max_retries - 1:
                     logger.info(f"Retrying recording in 5 seconds...")
                     await asyncio.sleep(5) 
                 else:
@@ -65,22 +65,22 @@ class MicrophoneService:
                     raise HTTPException(status_code=500, detail="Error in recording audio function")
                 
     
-    def save_audio(self,frames, inputename, filepath):
-        os.makedirs(filepath, exist_ok=True)  
-        audioId = 0
+    def save_audio(self,frames, input_name, file_path):
+        os.makedirs(file_path, exist_ok=True)  
+        audio_Id = 0
         while True:
-            filename = f"{inputename}_{audioId}.wav"
-            if not os.path.exists(os.path.join(filepath, filename)):
+            file_name = f"{input_name}_{audio_Id}.wav"
+            if not os.path.exists(os.path.join(file_path, file_name)):
                 break
-            audioId += 1
-        full_path = os.path.join(filepath, filename)
+            audio_Id += 1
+        full_path = os.path.join(file_path, file_name)
         with wave.open(full_path, 'wb') as wf:
             wf.setnchannels(self.channels)
             wf.setsampwidth(self.p.get_sample_size(self.format))
             wf.setframerate(self.sample_rate)
             wf.writeframes(b''.join(frames))
         return {
-        "audioId": audioId,
-        "filename": filename,
+        "audioId": audio_Id,
+        "filename": file_name,
         "filepath": full_path
         }
