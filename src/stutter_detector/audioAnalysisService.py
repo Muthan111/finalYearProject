@@ -108,7 +108,7 @@ class audioAnalysisService:
 
     #     return block_times
     def detect_blocks_phoneme(self, alignment ):
-        block_thresh=0.5
+        block_thresh=0.3
         blocks = []
         prev_end = 0
         for word in alignment:

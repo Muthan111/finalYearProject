@@ -186,34 +186,46 @@ class DetectorService:
         print(wordTimeStamps)
         print(transcribedText)
 
-        # # ===================
-        # # Detect Fillers
-        # # ===================
-        # logger.info("Detecting fillers...")
-        # fillers = await self.detect_fillers(transcription)
-        # print(fillers)
+        # ===================
+        # Detect Fillers
+        # ===================
+        logger.info("Detecting fillers...")
+        fillers = await self.detect_fillers(transcribedText)
+        print(fillers)
 
-        # # ===================
-        # # Detect Repeated Words
-        # # ===================
-        # logger.info("Detecting repeated words...")
-        # repeatedWords = await self.detectRepeatedWords(transcription)
-        # print(repeatedWords)
+        # ===================
+        # Detect Repeated Words
+        # ===================
+        logger.info("Detecting repeated words...")
+        repeatedWords = await self.detectRepeatedWords(transcribedText)
+        print(repeatedWords)
         
         # ===================
         # Detect Repeated Syllables, Blocks, and Prolongations
         # ===================
-        # repeatedSyllables = await self.detectRepeatedSyllables(cleanedAudioPath, sr)
+        repeatedSyllables = await self.detectRepeatedSyllables(cleanedAudioPath, sr)
         # blocks = self.detectBlock(cleanedAudioPath, sr)
         blocks = self.detectBlock(wordTimeStamps)
-        # prolongations = self.detectProlongation(cleanedAudioPath, sr)
+        prolongations = self.detectProlongation(cleanedAudioPath, sr)
+
+        # ===================
+        # Prepare Feedback
+        # ===================
+        self.feedback.repetions_feedback(repeatedWords)
+        self.feedback.prolongations_feedback(prolongations)
+        self.feedback.blocks_feedback(blocks)
+        self.feedback.repeated_words_feedback(repeatedWords)
+        self.feedback.fillers_feedback(fillers)
+        Feedback = self.feedback.return_feedback()
         return {
-            # "audioDisplayURL": audioDisplayURL,
-            # "transcription": transcription,
-            # "fillers": fillers,
-            # "repeatedWords": repeatedWords,
-            # "repeatedSyllables": repeatedSyllables,
+            "audioDisplayURL": audioDisplayURL,
+            "transcription": transcribedText,
+            "fillers": fillers,
+            "repeatedWords": repeatedWords,
+            "repeatedSyllables": repeatedSyllables,
             "blocks": blocks,
-            # "prolongations": prolongations
+            "prolongations": prolongations,
+            "feedback": Feedback,
+           
         }
         
