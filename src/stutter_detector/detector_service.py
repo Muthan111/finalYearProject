@@ -12,10 +12,11 @@ class DetectorService:
         self.similarity_threshold = 0.98
         self.min_repetitions = 4
         self.min_time = 0.3
-        self.energy_threshold = 2.0
-        self.min_duration = 0.5
+        self.energy_threshold = 0.002
+        self.min_duration = 0.2
         self.silent_thresh = 0.01
         self.block_thresh = 1.0
+        self.hop_length = 512  # Default hop length for librosa
 
     def detect_repetitions (self,sr, mfcc):
         logger.info("Detecting repetitions in MFCC features...")
@@ -49,27 +50,33 @@ class DetectorService:
     def detect_prolongation(self,audio, sr):
         logger.info("Detecting prolongations in audio...")
         try:
-            spec = librosa.feature.melspectrogram(y=audio, sr=sr)
-            db_spec = librosa.power_to_db(spec, ref=np.max)
+            hop_length = 512
+            rms = librosa.feature.rms(y=audio, frame_length=2048, hop_length=hop_length).flatten()
+            rms_diff = np.abs(np.diff(rms))
+            logger.debug(f"RMS shape: {rms.shape}, RMS diff shape: {rms_diff.shape}")
 
-            energy_diff = np.abs(np.diff(db_spec, axis=1)).mean(axis=0)
-            mean_energy_per_frame = db_spec.mean(axis=0)
-            mean_energy_per_frame = mean_energy_per_frame[:-1]
-            energy_floor = -40  # tune this!
-            prolonged_frames = (energy_diff < self.energy_threshold) & (mean_energy_per_frame > energy_floor)
+            threshold = 0.002
+            min_frames = int((0.1 * sr) / hop_length)
 
-            # Find contiguous frame sequences
+            prolonged = rms_diff < threshold
+            logger.debug(f"Any prolonged frames: {np.any(prolonged)}")
+            logger.debug(f"Prolonged frame indices: {np.where(prolonged)[0]}")
+
             count = 0
             starts = []
-            for i, val in enumerate(prolonged_frames):
+            for i, val in enumerate(prolonged):
                 if val:
                     count += 1
                 else:
-                    if count >= (self.min_duration * sr / 512):
+                    if count >= min_frames:
                         starts.append(i - count)
+                        logger.debug(f"Prolongation detected from frame {i - count} to {i}")
                     count = 0
-            logger.info("Prolongation detection completed")
-            return [librosa.frames_to_time(s, sr=sr).item() for s in starts]
+            if count >= min_frames:
+                starts.append(len(prolonged) - count)
+                logger.debug(f"Prolongation detected at end from frame {len(prolonged) - count}")
+
+            return [librosa.frames_to_time(s, sr=sr, hop_length=hop_length).item() for s in starts]
         except Exception as e:
             logger.error(f"Error in detect_prolongation: {e}")
             raise HTTPException(status_code=500, detail="Error in detecting prolongations")

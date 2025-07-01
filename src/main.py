@@ -6,6 +6,7 @@ templates = Jinja2Templates(directory="frontend")
 from fastapi.staticfiles import StaticFiles
 import os
 from src.middleware.loggerMiddleware import LoggingMiddleware
+
 app = FastAPI(
     title="Stutter Detection API",
     description="API for detecting stutter in audio files using Whisper AI and custom stutter detection logic.",

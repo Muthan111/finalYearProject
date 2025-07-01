@@ -6,6 +6,7 @@ from src.stutter_detector.audioAnalysisService import AudioAnalysisService
 from src.stutter_detector.whisperService import WhisperService
 from src.stutter_detector.feedbackService import FeedbackService
 from src.stutter_detector.detector_service import DetectorService
+from src.stutter_detector.UploadService import UploadService
 import asyncio
 import traceback
 from src.utils.logger import logger
@@ -22,6 +23,7 @@ class stutterDetectorService:
         self.whisper_service = WhisperService()
         self.feedback = FeedbackService()
         self.detector_service = DetectorService()
+        self.upload_service = UploadService()
         self.language = "en"
 
     
@@ -79,8 +81,26 @@ class stutterDetectorService:
             alignment=alignment,
             mfcc=extracted_mfcc
         )
-        final_result = self.feedback.personalized_feedback(detection)
-        return final_result
+        data = {
+            
+            "transcription": transcription['text'],
+            
+            "detection": detection,
+            "audioDisplayURL": audioDisplayURL
+        }
+        return data
+        # final_result = self.feedback.personalized_feedback(detection)
+        # return final_result
+    def test_upload(self, file):
+        try:
+            upload_result = self.upload_service.audio_upload(file)
+            if "error" in upload_result:
+                raise HTTPException(status_code=500, detail=upload_result["error"])
+            return upload_result
+        except Exception as e:
+            logger.error(f"Error in file upload: {e}")
+            logger.error(traceback.format_exc())
+            raise HTTPException(status_code=500, detail=str(e))
 
         
         
