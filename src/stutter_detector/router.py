@@ -16,12 +16,14 @@ stutter_service = stutterDetectorService()
 
 
 
-@stutter_router.post("/stutter_detection",
-                     summary="Detect Stutter in Audio File",
-                     description="Select this to start recording and get feedback on your stutters",)
+@stutter_router.post(
+    "/stutter_detection",
+    summary="Detect Stutter in Audio File",
+    description="Select this to start recording and get feedback on your stutters"
+)
 @limiter.limit("5/minute")
-async def stutter_detection(request: Request):
-    return await stutter_service.detect_stutter()
+async def stutter_detection(request: Request, file: UploadFile = File(...)):
+    return await stutter_service.detect_stutter(file)
 
 @stutter_router.post("/upload_file", summary="Upload Audio File", response_class=JSONResponse)
 def upload_file(file: UploadFile = File(...)):

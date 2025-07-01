@@ -38,7 +38,7 @@ class stutterDetectorService:
 
 
 
-    async def detect_stutter(self):
+    async def detect_stutter(self,file):
         # ===================
         # clear previous feedback
         # ===================
@@ -46,9 +46,15 @@ class stutterDetectorService:
         #  ===================
         # Start Microphone 
         # ===================    
-        audio = await self.microphone_service.start_recording()
-        audioPath = audio["audiofilepath"]
-        audioDisplayURL = audio["audioDisplayURL"]
+        # audio = await self.microphone_service.start_recording()
+        # audioPath = audio["audiofilepath"]
+        # audioDisplayURL = audio["audioDisplayURL"]
+
+        audio =  self.upload_service.audio_upload(file)
+        if "error" in audio:
+            raise HTTPException(status_code=500, detail=audio["error"])
+        audioPath = audio["filepath"]
+        # audioDisplayURL = audio["audioDisplayURL"]
 
         # ===================
         # Clean Audio
@@ -86,7 +92,7 @@ class stutterDetectorService:
             "transcription": transcription['text'],
             
             "detection": detection,
-            "audioDisplayURL": audioDisplayURL
+            # "audioDisplayURL": audioDisplayURL
         }
         return data
         # final_result = self.feedback.personalized_feedback(detection)

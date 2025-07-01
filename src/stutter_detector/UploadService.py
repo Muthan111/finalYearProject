@@ -2,6 +2,9 @@ import os
 import traceback
 import logging
 from src.utils.logger import logger
+import uuid
+import shutil
+
 class UploadService:
     ALLOWED_CONTENT_TYPES = {"audio/wav", "audio/x-wav", "audio/mpeg", "audio/mp3"}
     ALLOWED_EXTENSIONS = {".wav", ".mp3"}
@@ -19,24 +22,39 @@ class UploadService:
             print(f"Directory '{self.directory}' already exists.")
     
     def audio_upload(self, file):
-        try: 
+        try:
             self.create_directory()
+
+            # === Content type and extension check ===
             if file.content_type not in self.ALLOWED_CONTENT_TYPES:
-                raise ValueError(f"Unsupported file type: {file.content_type}. Allowed types are: {self.ALLOWED_CONTENT_TYPES}")
+                raise ValueError(f"Unsupported content type: {file.content_type}")
+
             ext = os.path.splitext(file.filename)[1].lower()
             if ext not in self.ALLOWED_EXTENSIONS:
-                raise ValueError(f"Unsupported file extension: {ext}. Allowed extensions are: {self.ALLOWED_EXTENSIONS}")
-            
+                raise ValueError(f"Unsupported file extension: {ext}")
+
+            # === Temp read to check size ===
             contents = file.file.read()
-            if len(contents) > self.MAX_FILE_SIZE:
-                raise ValueError(f"File size exceeds the maximum limit of {self.MAX_FILE_SIZE / (1024 * 1024)} MB.")
-            file_path = os.path.join(self.directory, file.filename)
+            size = len(contents)
+            if size > self.MAX_FILE_SIZE:
+                raise ValueError(f"File size {size / (1024 * 1024):.2f}MB exceeds limit of {self.MAX_FILE_SIZE / (1024 * 1024)}MB")
+
+            # Rewind for writing
+            file.file.seek(0)
+
+            # Safe filename to avoid overwrites or injection
+            safe_filename = f"{uuid.uuid4().hex}{ext}"
+            file_path = os.path.join(self.directory, safe_filename)
+
+            # === Save the file ===
             with open(file_path, "wb") as f:
-                f.write(file.file.read())
-            print(f"File '{file.filename}' uploaded successfully to '{self.directory}'.")
-            return {"filename": file.filename, "filepath": file_path}
+                shutil.copyfileobj(file.file, f)
+
+            print(f"✅ File '{safe_filename}' uploaded successfully to '{self.directory}'")
+            return {"filename": safe_filename, "filepath": file_path}
+
         except Exception as e:
-            logger.error(f"Error uploading file: {e}")
+            logger.error(f"❌ Error uploading file: {e}")
             logger.error(traceback.format_exc())
             return {"error": str(e)}
         
