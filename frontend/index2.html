@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stutter Detection</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: #f0f4f8;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 480px;
+            margin: 3rem auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(44,108,223,0.10);
+            padding: 2.5rem 2rem 2rem 2rem;
+        }
+        h1 {
+            color: #2d6cdf;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            font-size: 2.2rem;
+            letter-spacing: 1px;
+        }
+        .description {
+            color: #444;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 1.08rem;
+        }
+        .action-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+        button {
+            background: #2d6cdf;
+            color: #fff;
+            border: none;
+            padding: 0.8rem 2.2rem;
+            border-radius: 6px;
+            font-size: 1.08rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-weight: 500;
+        }
+        button:hover {
+            background: #1a4fa0;
+        }
+        .results-box {
+            width: 100%;
+            min-height: 80px;
+            background: #eaf1fb;
+            border: 1.5px solid #b6d0f7;
+            border-radius: 6px;
+            padding: 1rem;
+            color: #1a2a3a;
+            font-size: 1.05rem;
+            margin-top: 1.2rem;
+            resize: none;
+        }
+        .audio-section {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+        audio {
+            width: 100%;
+            max-width: 100%;
+            margin-top: 0.5rem;
+        }
+        footer {
+            text-align: center;
+            color: #888;
+            margin: 2rem 0 1rem 0;
+            font-size: 0.95rem;
+        }
+        input[type="file"] {
+            padding: 0.5rem;
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Stutter Detection</h1>
+        <div class="description">
+            Upload an audio file and click the button to detect stuttering patterns.
+        </div>
+
+        <div class="action-section">
+            <input type="file" id="audioFile" accept="audio/*">
+            <button id="detectBtn">Detect Stutter</button>
+            <textarea class="results-box" id="resultsBox" readonly placeholder="Detection results will appear here..."></textarea>
+        </div>
+
+        <div class="audio-section" id="audioContainer" style="display: none;">
+            <h3>Detected Audio</h3>
+            <audio id="backendAudio" controls>
+                <source id="backendAudioSource" src="" type="audio/wav">
+                Your browser does not support the audio element.
+            </audio>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2025 Stutter Detector Project
+    </footer>
+
+    <script>
+        document.getElementById('detectBtn').addEventListener('click', async function () {
+            const fileInput = document.getElementById('audioFile');
+            const resultsBox = document.getElementById('resultsBox');
+            const audioElement = document.getElementById('backendAudio');
+            const audioSource = document.getElementById('backendAudioSource');
+            const audioContainer = document.getElementById('audioContainer');
+
+            if (!fileInput.files.length) {
+                alert('Please upload an audio file first.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            resultsBox.value = 'Detecting...';
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/stutter_detection', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) throw new Error('API request failed');
+
+                const data = await response.json();
+
+                resultsBox.value = JSON.stringify(data.transcription, null, 2);
+
+                if (data.audioDisplayURL) {
+                    audioSource.src = data.audioDisplayURL;
+                    audioElement.load();
+                    audioContainer.style.display = 'block';
+                    audioElement.play();
+                } else {
+                    console.warn("No audio URL found in response.");
+                }
+            } catch (err) {
+                resultsBox.value = 'Error: ' + err.message;
+            }
+        });
+    </script>
+</body>
+</html>

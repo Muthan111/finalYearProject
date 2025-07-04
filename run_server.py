@@ -5,7 +5,7 @@ import os
 load_dotenv()
 
 # Convert env vars
-port = int(os.getenv("PORT", 8000))
+port = int(os.getenv("PORT"))
 reload = os.getenv("RELOAD", "False").lower() == "true"
 use_https = os.getenv("USE_HTTPS", "False").lower() == "true"
 ssl_keyfile = os.getenv("SSL_KEYFILE")
