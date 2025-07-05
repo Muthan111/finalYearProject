@@ -24,7 +24,7 @@ class UploadService:
     def audio_upload(self, file):
         try:
             self.create_directory()
-
+            audio_displayURL = "http://127.0.0.1:8000/static"
             # === Content type and extension check ===
             if file.content_type not in self.ALLOWED_CONTENT_TYPES:
                 raise ValueError(f"Unsupported content type: {file.content_type}")
@@ -45,13 +45,13 @@ class UploadService:
             # Safe filename to avoid overwrites or injection
             safe_filename = f"{uuid.uuid4().hex}{ext}"
             file_path = os.path.join(self.directory, safe_filename)
-
+            website_audio = os.path.join(audio_displayURL, safe_filename)
             # === Save the file ===
             with open(file_path, "wb") as f:
                 shutil.copyfileobj(file.file, f)
 
             print(f"✅ File '{safe_filename}' uploaded successfully to '{self.directory}'")
-            return {"filename": safe_filename, "filepath": file_path}
+            return {"filename": safe_filename, "filepath": file_path,"audioDisplayURL": website_audio}
 
         except Exception as e:
             logger.error(f"❌ Error uploading file: {e}")

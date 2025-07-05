@@ -54,7 +54,7 @@ class stutterDetectorService:
         if "error" in audio:
             raise HTTPException(status_code=500, detail=audio["error"])
         audioPath = audio["filepath"]
-        # audioDisplayURL = audio["audioDisplayURL"]
+        audioDisplayURL = audio["audioDisplayURL"]
 
         # ===================
         # Clean Audio
@@ -66,7 +66,7 @@ class stutterDetectorService:
         # # ===================
         # # Transcribe Audio
         # # ===================
-        transcription = await self.whisper_service.transcribe(cleanedAudioPath)
+        transcription = await self.whisper_service.transcribe(audioPath)
         text_transcription = transcription["text"]
         alignment = transcription["words"]
 
@@ -92,7 +92,7 @@ class stutterDetectorService:
             "transcription": transcription['text'],
             
             "detection": detection,
-            # "audioDisplayURL": audioDisplayURL
+            "audioDisplayURL": audioDisplayURL
         }
         return data
         # final_result = self.feedback.personalized_feedback(detection)

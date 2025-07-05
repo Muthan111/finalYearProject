@@ -16,7 +16,7 @@ app.add_middleware(LoggingMiddleware)
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RECORDING_PATH = os.path.join(BASE_DIR, 'recordings')
+RECORDING_PATH = os.path.join(BASE_DIR, 'uploaded_files')
 
 app.mount("/static", StaticFiles(directory=RECORDING_PATH), name="static")
 app.add_middleware(
