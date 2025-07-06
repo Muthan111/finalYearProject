@@ -51,14 +51,16 @@ class DetectorService:
         logger.info("Detecting prolongations in audio...")
         try:
             hop_length = 512
+            energy_floor = 0.01
             rms = librosa.feature.rms(y=audio, frame_length=2048, hop_length=hop_length).flatten()
             rms_diff = np.abs(np.diff(rms))
+            rms_masked = (rms[1:] > energy_floor)
             logger.debug(f"RMS shape: {rms.shape}, RMS diff shape: {rms_diff.shape}")
 
-            threshold = 0.002
-            min_frames = int((0.1 * sr) / hop_length)
+            threshold = 0.005
+            min_frames = int((0.3 * sr) / hop_length)
 
-            prolonged = rms_diff < threshold
+            prolonged = (rms_diff < threshold) & rms_masked
             logger.debug(f"Any prolonged frames: {np.any(prolonged)}")
             logger.debug(f"Prolonged frame indices: {np.where(prolonged)[0]}")
 
@@ -112,7 +114,7 @@ class DetectorService:
                     await asyncio.sleep(5)
 
                 else:
-                    repeatedWords = None
+                    repeated_words = None
         logger.info("Repeated words detection completed")
         return repeated_words
 
