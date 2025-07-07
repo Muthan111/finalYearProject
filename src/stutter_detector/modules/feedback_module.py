@@ -7,7 +7,7 @@ api_key = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=api_key)
 class FeedbackService:
     def __init__(self):
-        logger.info("Feedback Service initialized.")
+        
         self.feedback = []
         self.model = genai.GenerativeModel("gemini-1.5-flash")
 

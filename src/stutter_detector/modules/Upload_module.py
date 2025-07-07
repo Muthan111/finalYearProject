@@ -6,6 +6,13 @@ import uuid
 import shutil
 
 class UploadService:
+    """
+    This service handles the upload of audio files.
+    It checks for allowed content types, file extensions, and size limits.
+    It saves the uploaded files to a specific directory and returns the file path and display URL.
+    It also creates the directory if it does not exist.
+    """
+    
     ALLOWED_CONTENT_TYPES = {"audio/wav", "audio/x-wav", "audio/mpeg", "audio/mp3"}
     ALLOWED_EXTENSIONS = {".wav", ".mp3"}
     MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
@@ -15,6 +22,9 @@ class UploadService:
         
 
     def create_directory(self):
+        """        Creates the directory for uploaded files if it does not exist.
+        """
+        logger.info("Creating directory for uploaded files.")
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
             print(f"Directory '{self.directory}' created.")
@@ -22,7 +32,16 @@ class UploadService:
             print(f"Directory '{self.directory}' already exists.")
     
     def audio_upload(self, file):
+        """
+        Handles the upload of an audio file.
+        Args:
+            file: The audio file to be uploaded.
+        Returns:
+            A dictionary containing the filename, file path, and display URL if successful.
+            An error message if an exception occurs.
+        """
         try:
+            logger.info(f" [audio_upload] Starting audio upload process.")
             self.create_directory()
             audio_displayURL = "http://127.0.0.1:8000/static"
             # === Content type and extension check ===
@@ -50,7 +69,7 @@ class UploadService:
             with open(file_path, "wb") as f:
                 shutil.copyfileobj(file.file, f)
 
-            print(f"✅ File '{safe_filename}' uploaded successfully to '{self.directory}'")
+            logger.info(f"✅ File '{safe_filename}' uploaded successfully to '{self.directory}'")
             return {"filename": safe_filename, "filepath": file_path,"audioDisplayURL": website_audio}
 
         except Exception as e:

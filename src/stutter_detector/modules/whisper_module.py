@@ -8,7 +8,7 @@ from fastapi import HTTPException
 class WhisperService:
 
     def __init__(self):
-        logger.info("Whisper Service initialized.")
+        
         self.result = None
         self.model = WhisperModel("medium.en", device="cpu", compute_type="int8")
         self.language = "en"
@@ -16,7 +16,7 @@ class WhisperService:
 
     
     async def transcribe(self, audio_file):
-        logger.info(f"Transcribing audio file")
+        logger.info(f"[transcribe function] Transcribing audio file")
         await asyncio.sleep(0)
         max_retries = 2
         for attempt in range(max_retries):
@@ -41,7 +41,7 @@ class WhisperService:
                                 "end": float(word.end)
                             })
 
-                logger.info("Transcription completed successfully.")
+                
                 
                 return {
                         "text": full_text.strip(),
@@ -51,15 +51,15 @@ class WhisperService:
                 
             
             except Exception as e:
-                logger.error(f"Transcription failed: {e}")
+                logger.error(f"[transcribe function] Transcription failed: {e}")
                 logger.error(traceback.format_exc())
                 if attempt < max_retries - 1:
-                    logger.info(f"Retrying transcription in 5 seconds...")
+                    logger.info(f"[transcribe function] Retrying transcription in 5 seconds...")
                     await asyncio.sleep(5)  # Wait for 5 seconds before retrying
                 else:
-                    logger.error("Transcription failed after multiple attempts.")
+                    logger.error(f"[transcribe function] Transcription failed after multiple attempts.")
                     logger.error(traceback.format_exc())
-                    transcription = None
+                    segments = None
                     raise HTTPException(status_code=500, detail="Transcription failed")
             
                     

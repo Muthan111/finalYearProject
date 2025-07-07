@@ -8,7 +8,7 @@ from src.utils.logger import logger
 import traceback
 class MicrophoneService:
     def __init__(self):
-        logger.info("Microphone Service initialized.")
+        
         self.result = None
         self.language = "en"
         self.sample_rate = 16000

@@ -1,16 +1,12 @@
 import logging
 from fastapi import HTTPException
-from src.stutter_detector.microphoneService import MicrophoneService
-from src.stutter_detector.audioCleanService import AudioCleanService
-from src.stutter_detector.audioAnalysisService import AudioAnalysisService
-from src.stutter_detector.whisperService import WhisperService
-from src.stutter_detector.feedbackService import FeedbackService
-from src.stutter_detector.detector_service import DetectorService
-from src.stutter_detector.UploadService import UploadService
-from src.stutter_detector.audioPipeline import AudioPipeline
-from src.stutter_detector.transcribePipeline import TranscribePipeline
-from src.stutter_detector.DetectionPipeline import DetectionPipeline
-from src.stutter_detector.mfccPipeline import MfccPipeline
+
+from src.stutter_detector.modules.feedback_module import FeedbackService
+
+from src.stutter_detector.pipelines.audioPipeline import AudioPipeline
+from src.stutter_detector.pipelines.transcribePipeline import TranscribePipeline
+from src.stutter_detector.pipelines.DetectionPipeline import DetectionPipeline
+from src.stutter_detector.pipelines.mfccPipeline import MfccPipeline
 import asyncio
 import traceback
 from src.utils.logger import logger
@@ -71,7 +67,9 @@ class stutterDetectorService:
             return {
                 "transcription": text_transcription,
                 "detection": detection,
-                "audioDisplayURL": audioDisplayURL
+                "audioDisplayURL": audioDisplayURL,
+                "alignment": alignment,
+                
             }
 
 
