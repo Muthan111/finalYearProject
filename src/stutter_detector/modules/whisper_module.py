@@ -12,7 +12,7 @@ class WhisperService:
         self.result = None
         self.model = WhisperModel("medium.en", device="cpu", compute_type="int8")
         self.language = "en"
-        self.initial_prompt = "uh um like you know so"
+        self.initial_prompt = "uh um like you know so I mean well hmm"
 
     
     async def transcribe(self, audio_file):

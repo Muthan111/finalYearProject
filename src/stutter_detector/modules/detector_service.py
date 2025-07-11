@@ -204,7 +204,7 @@ class DetectorService:
         try:
             # Detect repeated words
             repeated_words = await self.repeated_words_detection_service.repeatedWords(transcription)
-            blocks = self.block_detection_service.detect_blocks_phoneme(alignment)
+            blocks = self.block_detection_service.detect_energy_blocks(audio,alignment,sr)
             fillers = self.filler_detection_service.fillers(transcription)
             repeated_syllables = self.repeated_syllables_detection_service.detect_repetitions(sr, mfcc)
             prolongations = self.prolongation_detection_service.detect_prolongation(audio, sr)

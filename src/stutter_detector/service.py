@@ -7,6 +7,7 @@ from src.stutter_detector.pipelines.audioPipeline import AudioPipeline
 from src.stutter_detector.pipelines.transcribePipeline import TranscribePipeline
 from src.stutter_detector.pipelines.DetectionPipeline import DetectionPipeline
 from src.stutter_detector.pipelines.mfccPipeline import MfccPipeline
+from src.stutter_detector.modules.feedback_module import FeedbackService
 import asyncio
 import traceback
 from src.utils.logger import logger
@@ -17,18 +18,12 @@ from src.utils.logger import logger
 class stutterDetectorService:
     def __init__(self):
         self.result = None
-        # self.microphone_service = MicrophoneService()
-        # self.audio_clean_service = AudioCleanService()
-        # self.audio_analysis_service = AudioAnalysisService()
-        # self.whisper_service = WhisperService()
-        # self.feedback = FeedbackService()
-        # self.detector_service = DetectorService()
-        # self.upload_service = UploadService()
         self.language = "en"
         self.audio_pipeline = AudioPipeline()
         self.transcribe_pipeline = TranscribePipeline()
         self.detection_pipeline = DetectionPipeline()
         self.mfcc_pipeline = MfccPipeline()
+        self.feedback = FeedbackService()
     async def detect_stutterV2(self, file):
         # ===================
         # clear previous feedback
@@ -64,11 +59,13 @@ class stutterDetectorService:
                 text_transcription,
                 alignment,mfcc_features)
 
+            personalized_feedback = self.feedback.personalized_feedback(detection)
             return {
                 "transcription": text_transcription,
                 "detection": detection,
                 "audioDisplayURL": audioDisplayURL,
                 "alignment": alignment,
+                "personalized_feedback": personalized_feedback
                 
             }
 

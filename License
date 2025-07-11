@@ -1,0 +1,22 @@
+MIT License
+
+Copyright (c) 2025 Muhammad Muad Thaha
+
+... [MIT license text continues] ...
+
+---
+
+## Third‑party Notices
+
+This project includes:
+
+1. **faster‑whisper**  
+   Copyright (c) 2022 Guillaume Klein  
+   Licensed under MIT  
+   Source: https://github.com/guillaumekln/faster-whisper
+
+2. **SEP‑28k Dataset (Stuttering Events in Podcasts)**  
+   Copyright © Colin Lea, Vikramjit Mitra, Aparna Joshi, Sachin Kajarekar, Jeffrey Bigham  
+   Licensed under Creative Commons Attribution‑NonCommercial 4.0 International (CC BY‑NC 4.0)  
+   Source: https://www.kaggle.com/datasets/ikrbasak/sep-28k  
+   🛑 For academic/testing only (non‑commercial use)

@@ -1,13 +1,40 @@
-# setting up venv
+## Cloning Instructions:
+
+git clone <link goes here>
+cd <repo-folder>
+
+## installation Instructions
+
+
+# Activate the Scripts (This is for windows)
 py -3.10 -m venv myenv
-# Activate the Scripts
-myenv/Scripts/Activate  
+myenv\Scripts\activate  
+
+# Activate the Scripts (This is for macOS/Linux )
+python3.10 -m venv myenv
+source myenv/bin/activate
 
 # Install the required packages
 pip install -r requirements.txt
+🧠 Note: This project uses faster-whisper for faster, lower-latency transcription.
+You must install ffmpeg separately for audio processing.
+🧠 Note: This project uses faster-whisper for faster, lower-latency transcription.
+It’s a CTranslate2-based implementation of OpenAI Whisper and runs locally, without needing an API key.
+📦 GitHub: https://github.com/guillaumekln/faster-whisper
+
+## Install ffmpeg
+# Windows (using Chocolatey)
+choco install ffmpeg
+
+# macOS (using Homebrew)
+brew install ffmpeg
+
+# Ubuntu/Debian
+sudo apt install ffmpeg
+
 
 # Start the server
-uvicorn src.main:app --reload
+python run_server.py
 
 # 🎙️ Stutter Detection Pipeline
 
@@ -52,10 +79,14 @@ The pipeline runs the following steps **in sequence**:
 - Full stack traces are logged for debugging.
 
 ---
+## API docs
+http://127.0.0.1:8000/docs
+The above link will take you to all the APIs
+
 
 ## 🚀 **API Endpoint**
 
-**POST** `/stutter_detection`
+**POST** `http://127.0.0.1:8000/stutter_detection`
 
 **Description:**  
 Triggers the complete stutter detection pipeline:
@@ -75,3 +106,31 @@ Triggers the complete stutter detection pipeline:
   "fillers": [ ... ],
   "repeated_words": [ ... ]
 }
+```
+## Author
+Muhammad Muad Thaha
+muadthaha@gmail.com
+
+## Output files
+# Audio files
+Audio files will be saved in uploaded_files
+Format: wav
+# Logs
+logs will be stored under logs
+
+## 📜 License
+
+This project is licensed under the MIT License.
+
+It includes the use of [faster-whisper](https://github.com/guillaumekln/faster-whisper) by Guillaume Klein, which is also licensed under MIT.
+
+---
+
+## 📁 Data Sources
+
+### 📊 SEP‑28k (Stuttering Events in Podcasts)
+- **Dataset by:** Colin Lea, Vikramjit Mitra, Aparna Joshi, Sachin Kajarekar, Jeffrey Bigham  
+- **License:** Creative Commons Attribution‑NonCommercial 4.0 (CC BY‑NC 4.0)  
+- **Source:** [SEP‑28k on Kaggle](https://www.kaggle.com/datasets/ikrbasak/sep-28k)
+
+> ⚠️ Used for **testing and academic evaluation only**. Not for commercial use.

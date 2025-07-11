@@ -31,4 +31,4 @@ app.add_middleware(
 app.include_router(stutter_router)
 @app.get("/")
 async def read_root(request: Request):
-    return templates.TemplateResponse("index2.html", {"request": request})
+    return templates.TemplateResponse("indexV3.html", {"request": request})
