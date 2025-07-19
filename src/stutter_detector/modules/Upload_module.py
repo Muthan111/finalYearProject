@@ -19,6 +19,8 @@ class UploadService:
     def __init__(self):
         
         self.directory = "uploaded_files"
+        os.makedirs(self.directory, exist_ok=True)  # Ensure the directory exists
+
         
 
     def create_directory(self):

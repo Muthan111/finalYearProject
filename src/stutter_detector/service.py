@@ -24,7 +24,7 @@ class stutterDetectorService:
         self.detection_pipeline = DetectionPipeline()
         self.mfcc_pipeline = MfccPipeline()
         self.feedback = FeedbackService()
-    async def detect_stutterV2(self, file):
+    async def detect_stutter(self, file):
         # ===================
         # clear previous feedback
         # ===================
@@ -42,7 +42,8 @@ class stutterDetectorService:
             
 
             
-            transcription = await self.transcribe_pipeline.run_pipeline(audioPath)
+            # transcription = await self.transcribe_pipeline.run_pipeline(audioPath)
+            transcription = self.transcribe_pipeline.run_pipelineV2(audioPath)
             if "error" in transcription:
                 raise HTTPException(status_code=500, detail=transcription["error"])
             text_transcription = transcription["text_transcription"]
@@ -59,13 +60,13 @@ class stutterDetectorService:
                 text_transcription,
                 alignment,mfcc_features)
 
-            personalized_feedback = self.feedback.personalized_feedback(detection)
+            # personalized_feedback = self.feedback.personalized_feedback(detection)
             return {
                 "transcription": text_transcription,
                 "detection": detection,
                 "audioDisplayURL": audioDisplayURL,
                 "alignment": alignment,
-                "personalized_feedback": personalized_feedback
+                # "personalized_feedback": personalized_feedback
                 
             }
 
@@ -88,75 +89,7 @@ class stutterDetectorService:
 
 
 
-    # async def detect_stutter(self,file):
-    #     # ===================
-    #     # clear previous feedback
-    #     # ===================
-    #     self.feedback.clear_feedback()
-    #     #  ===================
-    #     # Start Microphone 
-    #     # ===================    
-    #     # audio = await self.microphone_service.start_recording()
-    #     # audioPath = audio["audiofilepath"]
-    #     # audioDisplayURL = audio["audioDisplayURL"]
-
-    #     audio =  self.upload_service.audio_upload(file)
-    #     if "error" in audio:
-    #         raise HTTPException(status_code=500, detail=audio["error"])
-    #     audioPath = audio["filepath"]
-    #     audioDisplayURL = audio["audioDisplayURL"]
-
-    #     # ===================
-    #     # Clean Audio
-    #     # ===================
-    #     cleaned_audio = await self.audio_clean_service.preprocess_audio(audioPath)
-    #     cleanedAudioPath = cleaned_audio["cleanedAudio"]
-    #     sr = cleaned_audio["sr"]
-
-    #     # # ===================
-    #     # # Transcribe Audio
-    #     # # ===================
-    #     transcription = await self.whisper_service.transcribe(audioPath)
-    #     text_transcription = transcription["text"]
-    #     alignment = transcription["words"]
-
-    #     # ===================
-    #     # Extract MFCC
-    #     # ===================
-    #     mfcc = await self.audio_analysis_service.extractMFCC(cleanedAudioPath, sr)
-    #     extracted_mfcc = mfcc["mfcc"]
-    #     sr = mfcc["sr"]
-        
-    #     # ===================
-    #     # Detect Stutters
-    #     # ===================
-    #     detection= await self.detector_service.detect_stutters(
-    #         audio=cleanedAudioPath,
-    #         transcription=text_transcription,
-    #         sr=sr,
-    #         alignment=alignment,
-    #         mfcc=extracted_mfcc
-    #     )
-    #     data = {
-            
-    #         "transcription": transcription['text'],
-            
-    #         "detection": detection,
-    #         "audioDisplayURL": audioDisplayURL
-    #     }
-    #     return data
-    #     # final_result = self.feedback.personalized_feedback(detection)
-    #     # return final_result
-    def test_upload(self, file):
-        try:
-            upload_result = self.upload_service.audio_upload(file)
-            if "error" in upload_result:
-                raise HTTPException(status_code=500, detail=upload_result["error"])
-            return upload_result
-        except Exception as e:
-            logger.error(f"Error in file upload: {e}")
-            logger.error(traceback.format_exc())
-            raise HTTPException(status_code=500, detail=str(e))
+    
 
         
         

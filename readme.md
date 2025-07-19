@@ -1,3 +1,31 @@
+## 💻 System Requirements
+
+This project involves real-time speech processing using Whisper, MFA, and a stutter detection model. These tools are computationally demanding, so here’s what you’ll need to **survive the pipeline**:
+
+### 🧠 Minimum Requirements (to run without fire)
+
+- **RAM:** 8GB (✅ 16GB recommended)
+- **Storage:** 10–20GB free (models, audio files, logs)
+- **CPU:** Quad-core, 7th-gen Intel or Ryzen 5 (2018 or newer)
+- **GPU (Optional but recommended):** NVIDIA GPU with CUDA, ≥ 4GB VRAM
+- **OS:** Windows 10+, macOS, or any Linux distro (Ubuntu 20.04+ preferred)
+- **Python:** 3.8 – 3.11
+- **Audio Tools:** `ffmpeg` must be installed and available on your system PATH
+
+> ⚠️ Whisper and MFA are heavy hitters. On an older machine, the pipeline **will work**, but you may want to grab a coffee… or three.
+
+---
+
+### 🧪 Example Performance Scenarios
+
+| System Type                 | Expected Performance                            |
+|----------------------------|-------------------------------------------------|
+| 🥔 Old Laptop (4GB RAM)     | May crash. Avoid unless you're a masochist.     |
+| 😐 Mid Laptop (8GB RAM)     | Works, but slow. Expect 2x–5x real-time speed.  |
+| 💻 Dev Laptop (16GB + GPU)  | Runs smoothly. Real-time is achievable.         |
+| 🧠 Workstation (RTX GPU)    | Chef's kiss. Real-time processing, smooth UX.   |
+
+---
 ## Cloning Instructions:
 
 git clone <link goes here>
