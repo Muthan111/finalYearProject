@@ -50,4 +50,5 @@ class ProlongationDetectionService:
             return [librosa.frames_to_time(s, sr=sr, hop_length=hop_length).item() for s in starts]
         except Exception as e:
             logger.error(f"Error in detect_prolongation: {e}")
-            raise HTTPException(status_code=500, detail="Error in detecting prolongations")
+            logger.error(traceback.format_exc())
+            return None

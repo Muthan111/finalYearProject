@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Stutter Detection</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      background: #f0f4f8;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 480px;
+      margin: 2rem auto;
+      background: #fff;
+      border-radius: 12px;
+      border: 1px solid #d3e1f4;
+      padding: 2rem;
+    }
+
+    h1 {
+      color: #2d6cdf;
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .how-it-works {
+      background: #eef4fc;
+      border-left: 4px solid #2d6cdf;
+      padding: 1rem;
+      font-size: 0.95rem;
+      margin-bottom: 2rem;
+      border-radius: 6px;
+    }
+
+    .action-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .upload-label {
+      display: inline-block;
+      background: #fff;
+      color: #2d6cdf;
+      border: 2px dashed #2d6cdf;
+      padding: 0.6rem 1.2rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .upload-label:hover {
+      background: #2d6cdf;
+      color: #fff;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    #fileNameDisplay {
+      font-size: 0.9rem;
+      color: #444;
+      margin: 0;
+    }
+
+    button {
+      background: #2d6cdf;
+      color: #fff;
+      border: none;
+      padding: 0.7rem 1.8rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #1a4fa0;
+    }
+
+    .results-section {
+      width: 95%;
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .results-section label {
+      font-weight: 600;
+      color: #2d6cdf;
+      margin-bottom: 0.3rem;
+    }
+
+    .results-box {
+      width: 100%;
+      min-height: 80px;
+      background: #eaf1fb;
+      border: 1.5px solid #b6d0f7;
+      border-radius: 6px;
+      padding: 1rem;
+      color: #1a2a3a;
+      font-size: 1.05rem;
+      resize: vertical;
+    }
+
+    /* ------------------ Custom Audio Player Styles ------------------ */
+    .audio-section {
+      margin-top: 1.5rem;
+    }
+
+    .custom-player {
+      background: #ffffff;
+      border: 1px solid #d3e1f4;
+      border-radius: 10px;
+      padding: 1rem;
+      user-select: none;
+    }
+
+    .player-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .player-controls button {
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    .timer {
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+
+    .progress-bar {
+      position: relative;
+      height: 10px;
+      background: #d7e3fb;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .progress {
+      height: 100%;
+      background: #2d6cdf;
+      width: 0%;
+      border-radius: 5px;
+    }
+
+    footer {
+      text-align: center;
+      color: #888;
+      margin-top: 2rem;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Stutter Detection</h1>
+
+    <div class="how-it-works">
+      <strong>How it works:</strong><br />
+      1. Upload your audio file<br />
+      2. Click “Detect Stutter”<br />
+      3. See results below: transcription, alignment, and feedback<br />
+      4. Listen to processed audio with millisecond timer
+    </div>
+
+    <div class="action-section">
+      <input type="file" id="audioFile" accept="audio/*" />
+      <label for="audioFile" class="upload-label">📂 Choose Audio File</label>
+      <p id="fileNameDisplay"></p>
+      <button id="detectBtn">Detect Stutter</button>
+    </div>
+
+    <div class="results-section">
+      <label for="transcriptionBox">Transcription</label>
+      <textarea id="transcriptionBox" class="results-box" readonly placeholder="Transcription will appear here..."></textarea>
+
+      <label for="raw_detection">Raw Detection results</label>
+      <textarea id="raw_detection" class="results-box" readonly placeholder="Raw detection results will appear here..."></textarea>
+
+      <label for="alignmentBox">Alignment</label>
+      <textarea id="alignmentBox" class="results-box" readonly placeholder="Phoneme alignment will appear here..."></textarea>
+
+      <label for="feedbackBox">Personalized Feedback</label>
+      <textarea id="feedbackBox" class="results-box" readonly placeholder="Feedback will appear here..."></textarea>
+    </div>
+
+    <!-- ------------------ Custom Audio Player Section ------------------ -->
+    <div class="audio-section" id="audioContainer" style="display: none;">
+      <h3>Detected Audio</h3>
+      <audio id="backendAudio" preload="metadata"></audio>
+
+      <div class="custom-player">
+        <div class="player-controls">
+          <button id="playPauseBtn">▶️</button>
+          <div class="timer">
+            <span id="currentTime">00:00:00:0000</span> / <span id="totalTime">00:00:00:0000</span>
+          </div>
+        </div>
+        <div class="progress-bar" id="progressBar">
+          <div class="progress" id="progress"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>&copy; 2025 Stutter Detector Project</footer>
+
+  <script>
+    const formatTimeWithMS = secs => {
+      const h = Math.floor(secs / 3600);
+      const m = Math.floor((secs % 3600) / 60);
+      const s = Math.floor(secs % 60);
+      const ms = Math.floor((secs % 1) * 10000);
+      const pad = (n, l = 2) => String(n).padStart(l, '0');
+      return `${pad(h)}:${pad(m)}:${pad(s)}:${pad(ms, 4)}`;
+    };
+
+    const fileInput = document.getElementById('audioFile');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const detectBtn = document.getElementById('detectBtn');
+
+    const transcriptionBox = document.getElementById('transcriptionBox');
+    const alignmentBox = document.getElementById('alignmentBox');
+    const feedbackBox = document.getElementById('feedbackBox');
+    const rawDetectionBox = document.getElementById('raw_detection');
+
+    const audioElement = document.getElementById('backendAudio');
+    const audioContainer = document.getElementById('audioContainer');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const currentTimeTxt = document.getElementById('currentTime');
+    const totalTimeTxt = document.getElementById('totalTime');
+    const progressBar = document.getElementById('progressBar');
+    const progress = document.getElementById('progress');
+
+    fileInput.addEventListener('change', () => {
+      fileNameDisplay.textContent = fileInput.files[0]?.name || '';
+    });
+
+    detectBtn.addEventListener('click', async () => {
+      if (!fileInput.files.length) {
+        alert('Please upload an audio file.');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      transcriptionBox.value = 'Detecting...';
+      alignmentBox.value = '';
+      feedbackBox.value = '';
+      rawDetectionBox.value = 'Processing...';
+
+      try {
+        const res = await fetch('http://127.0.0.1:8000/stutter_detection', {
+          method: 'POST',
+          body: formData
+        });
+        if (!res.ok) throw new Error('API request failed');
+        const data = await res.json();
+
+        transcriptionBox.value = data.transcription || 'No transcription.';
+        alignmentBox.value = JSON.stringify(data.alignment || 'No alignment.', null, 2);
+        feedbackBox.value = data.personalized_feedback || 'No feedback.';
+        rawDetectionBox.value = JSON.stringify(data.detection || 'No detection.', null, 2);
+
+        if (data.audioDisplayURL) {
+          audioElement.src = data.audioDisplayURL;
+          audioElement.load();
+          audioContainer.style.display = 'block';
+          currentTimeTxt.textContent = '00:00:00:0000';
+          totalTimeTxt.textContent = '00:00:00:0000';
+          progress.style.width = '0%';
+          playPauseBtn.textContent = '▶️';
+
+          audioElement.addEventListener('loadedmetadata', () => {
+            totalTimeTxt.textContent = formatTimeWithMS(audioElement.duration);
+          }, { once: true });
+
+          audioElement.play();
+        }
+      } catch (err) {
+        transcriptionBox.value = '';
+        alignmentBox.value = '';
+        feedbackBox.value = 'Error: ' + err.message;
+        rawDetectionBox.value = 'Error: ' + err.message;
+      }
+    });
+
+    let rafId = null;
+    let seeking = false;
+
+    const renderProgress = () => {
+      if (!audioElement.duration) return;
+      currentTimeTxt.textContent = formatTimeWithMS(audioElement.currentTime);
+      const pct = (audioElement.currentTime / audioElement.duration) * 100;
+      progress.style.width = `${pct}%`;
+    };
+
+    const startRAF = () => {
+      cancelRAF();
+      const step = () => {
+        if (!audioElement.paused && !audioElement.ended && !seeking) {
+          renderProgress();
+          rafId = requestAnimationFrame(step);
+        }
+      };
+      step();
+    };
+
+    const cancelRAF = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = null;
+    };
+
+    playPauseBtn.addEventListener('click', () => {
+      audioElement[audioElement.paused ? 'play' : 'pause']();
+    });
+
+    audioElement.addEventListener('play', () => {
+      playPauseBtn.textContent = '⏸️';
+      startRAF();
+    });
+
+    audioElement.addEventListener('pause', () => {
+      playPauseBtn.textContent = '▶️';
+      cancelRAF();
+      renderProgress();
+    });
+
+    audioElement.addEventListener('ended', () => {
+      playPauseBtn.textContent = '▶️';
+      cancelRAF();
+      renderProgress();
+    });
+
+    audioElement.addEventListener('timeupdate', () => {
+      if (!seeking && audioElement.paused) renderProgress();
+    });
+
+    const seekFromClientX = clientX => {
+      if (!audioElement.duration) return;
+      const rect = progressBar.getBoundingClientRect();
+      let pct = (clientX - rect.left) / rect.width;
+      pct = Math.max(0, Math.min(1, pct));
+      audioElement.currentTime = pct * audioElement.duration;
+      renderProgress();
+    };
+
+    progressBar.addEventListener('mousedown', e => {
+      seeking = true;
+      seekFromClientX(e.clientX);
+    });
+
+    document.addEventListener('mousemove', e => {
+      if (seeking) seekFromClientX(e.clientX);
+    });
+
+    document.addEventListener('mouseup', () => (seeking = false));
+
+    progressBar.addEventListener('touchstart', e => {
+      seeking = true;
+      seekFromClientX(e.touches[0].clientX);
+    });
+
+    document.addEventListener('touchmove', e => {
+      if (seeking) seekFromClientX(e.touches[0].clientX);
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => (seeking = false));
+
+    progressBar.addEventListener('wheel', e => {
+      e.preventDefault();
+      if (!audioElement.duration) return;
+      const STEP = 3;
+      const dir = Math.sign(e.deltaY);
+      audioElement.currentTime = Math.min(
+        Math.max(0, audioElement.currentTime + dir * STEP),
+        audioElement.duration
+      );
+      renderProgress();
+    });
+  </script>
+</body>
+</html>
