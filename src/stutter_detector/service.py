@@ -43,11 +43,11 @@ class stutterDetectorService:
 
             
             # transcription = await self.transcribe_pipeline.run_pipeline(audioPath)
-            transcription = self.transcribe_pipeline.run_pipelineV2(audioPath)
-            if "error" in transcription:
-                raise HTTPException(status_code=500, detail=transcription["error"])
-            text_transcription = transcription["text_transcription"]
-            alignment = transcription["alignment"]
+            # transcription = await self.transcribe_pipeline.run_pipeline(audioPath)
+            # if "error" in transcription:
+            #     raise HTTPException(status_code=500, detail=transcription["error"])
+            # text_transcription = transcription["text_transcription"]
+            # alignment = transcription["alignment"]
 
             mfcc = await self.mfcc_pipeline.run_pipeline(cleanedAudioPath, sr)
             if "error" in mfcc:
@@ -57,15 +57,22 @@ class stutterDetectorService:
             detection = await self.detection_pipeline.run_pipeline(
                 cleanedAudioPath,
                 sr1,
-                text_transcription,
-                alignment,mfcc_features)
+                None,
+                None,mfcc_features)
+            general_Feedback = self.feedback.convert_feedback_to_string(
+                detection["fillers"],
+                detection["repeated_words"],
+                detection["blocks"],
+                detection["prolongations"],
+                detection["repeated_syllables"]
+            )
 
             # personalized_feedback = self.feedback.personalized_feedback(detection)
             return {
-                "transcription": text_transcription,
-                "detection": detection,
+                # "transcription": text_transcription,
+                "detection": general_Feedback,
                 "audioDisplayURL": audioDisplayURL,
-                "alignment": alignment,
+                # "alignment": alignment,
                 # "personalized_feedback": personalized_feedback
                 
             }
