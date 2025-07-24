@@ -1,8 +1,8 @@
-## 💻 System Requirements
+# 💻 System Requirements
 
 This project involves real-time speech processing using Whisper, MFA, and a stutter detection model. These tools are computationally demanding, so here’s what you’ll need to **survive the pipeline**:
 
-### 🧠 Minimum Requirements (to run without fire)
+## 🧠 Minimum Requirements (to run without fire)
 
 - **RAM:** 8GB (✅ 16GB recommended)
 - **Storage:** 10–20GB free (models, audio files, logs)
@@ -16,7 +16,7 @@ This project involves real-time speech processing using Whisper, MFA, and a stut
 
 ---
 
-### 🧪 Example Performance Scenarios
+## 🧪 Example Performance Scenarios
 
 | System Type                 | Expected Performance                            |
 |----------------------------|-------------------------------------------------|
@@ -26,42 +26,63 @@ This project involves real-time speech processing using Whisper, MFA, and a stut
 | 🧠 Workstation (RTX GPU)    | Chef's kiss. Real-time processing, smooth UX.   |
 
 ---
-## Cloning Instructions:
+# Cloning Instructions:
 
 git clone <link goes here>
 cd <repo-folder>
 
-## installation Instructions
+# Installation Instructions
 
 
-# Activate the Scripts (This is for windows)
+## Activate the Scripts (This is for windows)
 py -3.10 -m venv myenv
 myenv\Scripts\activate  
 
-# Activate the Scripts (This is for macOS/Linux )
-python3.10 -m venv myenv
+## Activate the Scripts (This is for macOS/Linux )
+python 3.10 -m venv myenv
 source myenv/bin/activate
 
-# Install the required packages
+## Install the required packages
+### Install the base packages
 pip install -r requirements.txt
-🧠 Note: This project uses faster-whisper for faster, lower-latency transcription.
-You must install ffmpeg separately for audio processing.
+
+### Install faster-whisper separatly
+📦 GitHub: https://github.com/guillaumekln/faster-whisper
 🧠 Note: This project uses faster-whisper for faster, lower-latency transcription.
 It’s a CTranslate2-based implementation of OpenAI Whisper and runs locally, without needing an API key.
-📦 GitHub: https://github.com/guillaumekln/faster-whisper
 
-## Install ffmpeg
-# Windows (using Chocolatey)
+
+# Install ffmpeg
+## Windows (using Chocolatey)
 choco install ffmpeg
 
-# macOS (using Homebrew)
+## macOS (using Homebrew)
 brew install ffmpeg
 
-# Ubuntu/Debian
+## Ubuntu/Debian
 sudo apt install ffmpeg
 
 
-# Start the server
+# Start the System
+⚠️ Don’t forget: Create a .env file in the root directory using the example provided above.
+## environment file example content
+GEMINI_API_KEY=""
+HOST=
+PORT=
+RELOAD=True
+LOG_LEVEL=info
+USE_HTTPS=True
+SSL_KEYFILE=certs/key.pem
+SSL_CERTFILE=certs/cert.pem
+### SSL
+To generate self-signed certificates for local HTTPS development:
+Run the following command in your terminal:
+
+openssl req -x509 -newkey rsa:4096 -keyout certs/key.pem -out certs/cert.pem -days 365 -nodes -subj "/CN=localhost"
+
+ This will create a key.pem and cert.pem in the `certs/` folder.
+ Ensure `USE_HTTPS=True` is uncommented if you're enabling HTTPS.
+ ## starting the port
 python run_server.py
 
 # 🎙️ Stutter Detection Pipeline
@@ -135,18 +156,16 @@ Triggers the complete stutter detection pipeline:
   "repeated_words": [ ... ]
 }
 ```
-## Author
-Muhammad Muad Thaha
-muadthaha@gmail.com
 
-## Output files
-# Audio files
+
+# Output files
+## Audio files
 Audio files will be saved in uploaded_files
 Format: wav
-# Logs
+## Logs
 logs will be stored under logs
 
-## 📜 License
+# 📜 License
 
 This project is licensed under the MIT License.
 
@@ -154,7 +173,7 @@ It includes the use of [faster-whisper](https://github.com/guillaumekln/faster-w
 
 ---
 
-## 📁 Data Sources
+# 📁 Data Sources
 
 ### 📊 SEP‑28k (Stuttering Events in Podcasts)
 - **Dataset by:** Colin Lea, Vikramjit Mitra, Aparna Joshi, Sachin Kajarekar, Jeffrey Bigham  

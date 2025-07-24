@@ -6,19 +6,21 @@ templates = Jinja2Templates(directory="frontend")
 from fastapi.staticfiles import StaticFiles
 import os
 from src.middleware.loggerMiddleware import LoggingMiddleware
-
+from src.middleware.performance_monitor_middleware import PerformanceMonitorMiddleware
 app = FastAPI(
     title="Stutter Detection API",
     description="API for detecting stutter in audio files using Whisper AI and custom stutter detection logic.",
     version="1.0.0",
 )
-app.add_middleware(LoggingMiddleware)
+
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RECORDING_PATH = os.path.join(BASE_DIR, 'uploaded_files')
 
 app.mount("/static", StaticFiles(directory=RECORDING_PATH), name="static")
+app.mount("/assets", StaticFiles(directory="frontend"), name="assets")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -26,7 +28,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+app.add_middleware(LoggingMiddleware)
+app.add_middleware(PerformanceMonitorMiddleware)
 # app.include_router(whisper_router)
 app.include_router(stutter_router)
 @app.get("/")
