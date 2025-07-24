@@ -1,13 +1,13 @@
 import logging
 from fastapi import HTTPException
 
-from src.stutter_detector.modules.feedback_module import FeedbackService
+from src.stutter_detector.component_services.feedback_service import FeedbackService
 
 from src.stutter_detector.pipelines.audioPipeline import AudioPipeline
 from src.stutter_detector.pipelines.transcribePipeline import TranscribePipeline
 from src.stutter_detector.pipelines.DetectionPipeline import DetectionPipeline
 from src.stutter_detector.pipelines.mfccPipeline import MfccPipeline
-from src.stutter_detector.modules.feedback_module import FeedbackService
+
 import asyncio
 import traceback
 from src.utils.logger import logger

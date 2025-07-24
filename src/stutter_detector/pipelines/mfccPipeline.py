@@ -1,4 +1,4 @@
-from src.stutter_detector.modules.audio_analysis_module import AudioAnalysisService
+from src.stutter_detector.component_services.audio_analysis_service import AudioAnalysisService
 from src.utils.logger import logger
 import traceback
 class MfccPipeline:

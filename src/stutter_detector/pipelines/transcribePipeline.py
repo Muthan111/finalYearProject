@@ -1,4 +1,4 @@
-from src.stutter_detector.modules.whisper_module import WhisperService
+from src.stutter_detector.component_services.whisper_service import WhisperService
 from src.utils.logger import logger
 import traceback
 class TranscribePipeline:

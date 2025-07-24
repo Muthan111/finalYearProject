@@ -6,11 +6,11 @@ from sklearn.metrics.pairwise import cosine_similarity
 import librosa
 import numpy as np
 import re
-from src.stutter_detector.modules.block_detection_module import BlockDetectionService
-from src.stutter_detector.modules.prolongation_detection_module import ProlongationDetectionService
-from src.stutter_detector.modules.repeated_syllabels_detection_module import RepeatedSyllablesDetectionService
-from src.stutter_detector.modules.filller_detection_module import FillerDetectionService
-from src.stutter_detector.modules.repeated_words_detection_module import RepeatedWordsDetectionService
+from src.stutter_detector.component_services.block_detection_service import BlockDetectionService
+from src.stutter_detector.component_services.prolongation_detection_service import ProlongationDetectionService
+from src.stutter_detector.component_services.repeated_syllabels_detection_service import RepeatedSyllablesDetectionService
+from src.stutter_detector.component_services.filller_detection_service import FillerDetectionService
+from src.stutter_detector.component_services.repeated_words_detection_service import RepeatedWordsDetectionService
 class DetectorService:
     def __init__(self):
         pass

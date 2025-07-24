@@ -1,6 +1,6 @@
-from src.stutter_detector.modules.Upload_module import UploadService
-from src.stutter_detector.modules.microphone_module import MicrophoneService
-from src.stutter_detector.modules.audio_clean_module import AudioCleanService
+from src.stutter_detector.component_services.Upload_service import UploadService
+from src.stutter_detector.component_services.microphone_service import MicrophoneService
+from src.stutter_detector.component_services.audio_clean_service import AudioCleanService
 from src.utils.logger import logger
 import traceback
 class AudioPipeline:

@@ -1,5 +1,5 @@
 
-from src.stutter_detector.modules.detector_service import DetectorService
+from src.stutter_detector.component_services.detector_service import DetectorService
 from src.utils.logger import logger
 import traceback
 class DetectionPipeline:
