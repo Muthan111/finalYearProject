@@ -148,15 +148,13 @@ Triggers the complete stutter detection pipeline:
 **Response JSON Example:**
 ```json
 {
-  "repetitions": [ ... ],
-  "blocks": [ ... ],
-  "prolongations": [ ... ],
-  "transcription": "Your transcribed text here",
-  "fillers": [ ... ],
-  "repeated_words": [ ... ]
+  "transcripton": [...],
+  "detection": [...],
+  "audioDisplayURL":[...],
+  "alignment": [...],
+  "personalized_feedback": [...]
 }
 ```
-
 
 # Output files
 ## Audio files

@@ -17,7 +17,12 @@ class FeedbackService:
             num_repetitions = len(repetitions)
             
             if num_repetitions > 0:
-                self.feedback.append(f"⚠️ You have repetitions at these times:  {repetitions}.")
+                time_ranges = [
+                f"{rep['start_time']:.2f}s to {rep['end_time']:.2f}s"
+                for rep in repetitions
+                ]
+                time_string = "; ".join(time_ranges)
+                self.feedback.append(f"⚠️ You had {num_repetitions} repetition(s) at: {time_string}.")
                 
             else:
                 self.feedback.append("✅ Great! You had no repetitions.")
@@ -42,7 +47,12 @@ class FeedbackService:
         try:
             num_blocks = len(blocks)
             if num_blocks > 0:
-                self.feedback.append(f"⚠️ You had blocks at these times: {blocks}. Try to relax and take a deep breath before speaking.")
+                time_ranges = [
+                    f"{individal_block['start']:.2f}s to {individal_block['end']:.2f}s"
+                    for individal_block in blocks
+                ]
+                time_string = "; ".join(time_ranges)
+                self.feedback.append(f"⚠️ You had {num_blocks} block(s) at: {time_string}.")
                 
             else:
                 self.feedback.append(" ✅ Great! No blocks detected.")
@@ -86,9 +96,16 @@ class FeedbackService:
         self.prolongations_feedback(prolongations)
         self.repetions_feedback(repetitions)
         return self.feedback
+    def convert_alignment_to_string(self, alignment):
+        logger.info("Converting alignment to string...")
+        word_timestamps = [
+            f"{word['word']} ({word['start']:.2f}s to {word['end']:.2f}s)"
+            for word in alignment
+        ]
+        word_and_timestamps_string = ", ".join(word_timestamps)
+        logger.info("Alignment converted to string successfully.")
+        return word_and_timestamps_string
 
-        
-        return feedback_string
     def personalized_feedback(self,detection_feedback):
         logger.info("Generating personalized feedback...")
         try:

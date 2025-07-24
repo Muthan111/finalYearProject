@@ -70,14 +70,15 @@ class stutterDetectorService:
                 detection["prolongations"],
                 detection["repeated_syllables"]
             )
+            word_and_timestamps_string = self.feedback.convert_alignment_to_string(alignment)
 
-            personalized_feedback = self.feedback.personalized_feedback(detection)
+            # personalized_feedback = self.feedback.personalized_feedback(detection)
             return {
                 "transcription": text_transcription,
-                "detection": detection,
+                "detection": general_Feedback,
                 "audioDisplayURL": audioDisplayURL,
-                "alignment": alignment,
-                "personalized_feedback": personalized_feedback
+                "alignment": word_and_timestamps_string,
+                # "personalized_feedback": personalized_feedback
                 
             }
 
