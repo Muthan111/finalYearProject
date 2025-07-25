@@ -29,9 +29,9 @@ class UploadService:
         logger.info("Creating directory for uploaded files.")
         if not os.path.exists(self.directory):
             os.makedirs(self.directory)
-            print(f"Directory '{self.directory}' created.")
+            logger.info(f"Directory '{self.directory}' created.")
         else:
-            print(f"Directory '{self.directory}' already exists.")
+            logger.info(f"Directory '{self.directory}' already exists.")
     
     def audio_upload(self, file):
         """

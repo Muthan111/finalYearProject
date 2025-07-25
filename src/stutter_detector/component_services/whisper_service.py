@@ -36,8 +36,6 @@ class WhisperService:
             audio = file(audio_path)
             segments = self.client.predict(audio, api_name="/predict")  # Expecting list of segments from Colab
             logger.info(f"[transcribe_gradio function] Received segments: {segments}")
-            print("type of segments:", type(segments))
-            print (type(segments))
             full_text = ""
             word_timestamps = []
 
@@ -52,8 +50,7 @@ class WhisperService:
                             "end": float(word.get("end", 0))
                         })
 
-            print(f"Full Transcription: {full_text.strip()}")
-            print(f"Word Timestamps: {word_timestamps}")
+            
             return {
                 "transcription": full_text.strip(),
                 "word_timestamps": word_timestamps

@@ -9,10 +9,9 @@ class BlockDetectionService:
     def __init__(self):
         pass 
 
-    def detect_energy_blocks(self,audio_path, alignment, sr, frame_duration=0.02, hop_duration=0.01, threshold_db=-35, min_block_duration=0.2):
+    def detect_energy_blocks(self,audio_path, alignment, sr,
+                frame_duration=0.02, hop_duration=0.01, threshold_db=-35, min_block_duration=0.2):
         try: 
-            print(f"\n🔍 Loading audio...")
-
             y = audio_path  # audio_path is already the waveform
             frame_length = int(frame_duration * sr)
             hop_length = int(hop_duration * sr)
@@ -53,7 +52,6 @@ class BlockDetectionService:
                     })
 
             # Alignment-vs-Energy mismatch check
-            print("\n🔍 Checking for alignment vs energy mismatch blocks...")
             for i in range(len(alignment) - 1):
                 w1 = alignment[i]
                 w2 = alignment[i + 1]
@@ -76,10 +74,6 @@ class BlockDetectionService:
                                 "duration": round(duration, 2),
                                 "words": (w1['word'], w2['word'])
                             })
-
-            print(f"\n🧱 Detected blocks: {blocks if blocks else 'None found'}")
-
-            print("\n📌 Word alignment:")
             for word in alignment:
                 print(f"{word['word']} ({word['start']} → {word['end']})")
 
