@@ -43,29 +43,54 @@ class FeedbackService:
             logger.error(traceback.format_exc())
             self.feedback.append("❌ Error generating prolongations feedback.")
         return self.feedback
+    # def blocks_feedback(self, blocks):
+    #     try:
+    #         num_blocks = len(blocks)
+    #         if num_blocks > 0:
+    #             time_ranges = [
+    #                 f"{individal_block['start']:.2f}s to {individal_block['end']:.2f}s"
+    #                 for individal_block in blocks
+    #             ]
+    #             time_string = "; ".join(time_ranges)
+    #             self.feedback.append(f"⚠️ You had {num_blocks} block(s) at: {time_string}.")
+                
+    #         else:
+    #             self.feedback.append(" ✅ Great! No blocks detected.")
+    #     except Exception as e:
+    #         logger.error(f"Error in blocks_feedback: {e}")
+    #         logger.error(traceback.format_exc())
+    #         self.feedback.append("❌ Error generating blocks feedback.")
+    #     return self.feedback
     def blocks_feedback(self, blocks):
         try:
-            num_blocks = len(blocks)
+            # Filter blocks for type 'alignment_mismatch_block'
+            mismatch_blocks = [
+                b for b in blocks if b.get('type') == 'alignment_mismatch_block'
+            ]
+            num_blocks = len(mismatch_blocks)
+            
             if num_blocks > 0:
                 time_ranges = [
-                    f"{individal_block['start']:.2f}s to {individal_block['end']:.2f}s"
-                    for individal_block in blocks
+                    f"{block['start']:.2f}s to {block['end']:.2f}s"
+                    for block in mismatch_blocks
                 ]
                 time_string = "; ".join(time_ranges)
-                self.feedback.append(f"⚠️ You had {num_blocks} block(s) at: {time_string}.")
-                
+                self.feedback.append(f"⚠️ You had {num_blocks} alignment mismatch block(s) at: {time_string}.")
             else:
-                self.feedback.append(" ✅ Great! No blocks detected.")
+                self.feedback.append(" ✅ Great! No  blocks detected.")
+                
         except Exception as e:
             logger.error(f"Error in blocks_feedback: {e}")
             logger.error(traceback.format_exc())
             self.feedback.append("❌ Error generating blocks feedback.")
+
         return self.feedback
+
     def repeated_words_feedback(self, repeated_words):
         try: 
             num_repeated_words = len(repeated_words)
             if num_repeated_words > 0:
-                self.feedback.append(f"⚠️ You had tyhe following repeated words {repeated_words}.")
+                self.feedback.append(f"⚠️ You had the following repeated words {repeated_words}.")
                 self.feedback.append(f"Repeated words: {', '.join(repeated_words)}")
 
             else:
@@ -97,7 +122,7 @@ class FeedbackService:
         self.repetions_feedback(repetitions)
         return self.feedback
     def convert_alignment_to_string(self, alignment):
-        logger.info("Converting alignment to string...")
+        logger.info("[FeedbackService] Converting alignment to string...")
         word_timestamps = [
             f"{word['word']} ({word['start']:.2f}s to {word['end']:.2f}s)"
             for word in alignment
@@ -107,12 +132,13 @@ class FeedbackService:
         return word_and_timestamps_string
 
     def personalized_feedback(self,detection_feedback):
-        logger.info("Generating personalized feedback...")
+        logger.info("[FeedbackService] Generating personalized feedback...")
         try:
             prompt = f"""
             You are a feedback generator for stuttering detection.
             The voice recording has been analyzed and the following feedback has been generated:
             {detection_feedback}
+            Ignore any blocks with the type rms_silence_block
             Generate a personalized feedback message based on the provided feedback.
             The feedback should be concise, encouraging, and provide actionable advice for improvement.
             """

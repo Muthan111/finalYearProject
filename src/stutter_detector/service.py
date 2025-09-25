@@ -31,6 +31,7 @@ class stutterDetectorService:
         # self.feedback.clear_feedback()
         try:
             # Step 1: Upload the audio file
+            self.feedback.clear_feedback()
             audio = await self.audio_pipeline.run_pipeline(file)
             if "error" in audio:
                 raise HTTPException(status_code=500, detail=audio["error"])

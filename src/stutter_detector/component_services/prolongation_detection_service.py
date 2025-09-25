@@ -20,13 +20,13 @@ class ProlongationDetectionService:
         logger.info(f"[detect_prolongation] Detecting prolongations in audio...")
         try:
             hop_length = 512
-            energy_floor = 0.01
+            energy_floor = 0.02
             rms = librosa.feature.rms(y=audio, frame_length=2048, hop_length=hop_length).flatten()
             rms_diff = np.abs(np.diff(rms))
             rms_masked = (rms[1:] > energy_floor)
             logger.debug(f"[detect_prolongation] RMS shape: {rms.shape}, RMS diff shape: {rms_diff.shape}")
 
-            threshold = 0.005
+            threshold = 0.02
             min_frames = int((0.3 * sr) / hop_length)
 
             prolonged = (rms_diff < threshold) & rms_masked
