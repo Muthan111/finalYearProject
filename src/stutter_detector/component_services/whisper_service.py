@@ -124,7 +124,15 @@ class WhisperService:
                 logger.error(traceback.format_exc())
                 raise HTTPException(status_code=500, detail="Local transcription failed")
 
-
+    def convert_alignment_to_string(self, alignment):
+        logger.info("Converting alignment to string...")
+        word_timestamps = [
+            f"{word['word']} ({word['start']:.2f}s to {word['end']:.2f}s)"
+            for word in alignment
+        ]
+        word_and_timestamps_string = ", ".join(word_timestamps)
+        logger.info("Alignment converted to string successfully.")
+        return word_and_timestamps_string
 
         
         

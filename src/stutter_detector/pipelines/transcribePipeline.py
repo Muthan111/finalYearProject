@@ -21,13 +21,15 @@ class TranscribePipeline:
                 return {"error": transcription["error"]}
             text_transcription = transcription['text']
             alignment = transcription["words"]
+            alignment_string = self.whisper_service.convert_alignment_to_string(alignment)
             
 
             
             logger.info("Transcription completed successfully.")
             return {
                 "text_transcription": text_transcription,
-                "alignment": alignment
+                "alignment": alignment,
+                "alignment_string": alignment_string
             }
         
         except Exception as e:
