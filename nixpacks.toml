@@ -1,2 +1,2 @@
 [phases.setup]
-aptPkgs = ["portaudio19-dev"]
+aptPkgs = ["portaudio19-dev","ffmpeg"]
