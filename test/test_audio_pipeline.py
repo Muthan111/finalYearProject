@@ -5,7 +5,7 @@ from src.stutter_detector.component_services.audio_clean_service import (
     AudioCleanService,
 )
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
 @pytest.mark.asyncio
@@ -19,10 +19,13 @@ async def test_audio_pipeline():
 
     # Simulate an audio file upload
     # (replace 'test_audio.wav' with your test file)
-    test_file_path = "empty.wav"
+    test_file_path = os.path.join(os.path.dirname(__file__), "FluencyBank_096_1.wav")
 
     # Run the audio processing pipeline
     result = await audio_pipeline.preprocess_audio(test_file_path)
 
     assert "error" not in result
-    assert "cleaned_audio_path" in result
+    # Check processed file info exists
+    
+    assert "cleanedAudio" in result
+    assert "sr" in result

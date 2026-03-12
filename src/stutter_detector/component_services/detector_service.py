@@ -8,12 +8,12 @@ from src.stutter_detector.component_services.prolongation_detection_service \
     import ProlongationDetectionService
 
 from \
-    stutter_detector.component_services.repeated_syllabels_detection_service \
+    src.stutter_detector.component_services.repeated_syllabels_detection_serv \
     import RepeatedSyllablesDetectionService
 
 from src.stutter_detector.component_services.filller_detection_service \
     import FillerDetectionService
-from stutter_detector.component_services.repeated_words_detection_service \
+from src.stutter_detector.component_services.repeated_words_detection_service \
     import RepeatedWordsDetectionService
 
 
