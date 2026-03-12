@@ -4,20 +4,17 @@ from src.utils.logger import logger
 from src.stutter_detector.component_services.block_detection_service import (
     BlockDetectionService,
 )
-from src.stutter_detector.component_services.prolongation_detection_service import (
-    ProlongationDetectionService,
-)
+from src.stutter_detector.component_services.prolongation_detection_service \
+    import ProlongationDetectionService
 
-from src.stutter_detector.component_services.repeated_syllabels_detection_service import (
-    RepeatedSyllablesDetectionService,
-)
+from \
+    stutter_detector.component_services.repeated_syllabels_detection_service \
+    import RepeatedSyllablesDetectionService
 
-from src.stutter_detector.component_services.filller_detection_service import (
-    FillerDetectionService,
-)
-from src.stutter_detector.component_services.repeated_words_detection_service import (
-    RepeatedWordsDetectionService,
-)
+from src.stutter_detector.component_services.filller_detection_service \
+    import FillerDetectionService
+from stutter_detector.component_services.repeated_words_detection_service \
+    import RepeatedWordsDetectionService
 
 
 class DetectorService:
