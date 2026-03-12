@@ -16,7 +16,6 @@ uvicorn_args = {
     "host": os.getenv("HOST", "127.0.0.1"),
     "port": port,
     "reload": reload,
-    
     "log_level": os.getenv("LOG_LEVEL", "info")
 }
 # Add SSL if enabled
