@@ -1,29 +1,31 @@
-from fastapi import FastAPI,Request
-from src.stutter_detector.router import stutter_router
-from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
-templates = Jinja2Templates(directory="frontend")
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 import os
 from src.middleware.loggerMiddleware import LoggingMiddleware
-from src.middleware.performance_monitor_middleware import PerformanceMonitorMiddleware
-app = FastAPI(
-    title="Stutter Detection API",
-    description="API for detecting stutter in audio files using Whisper AI and custom stutter detection logic.",
-    version="1.0.0",
+from src.stutter_detector.router import stutter_router
+from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
+from src.middleware.performance_monitor_middleware import (
+    PerformanceMonitorMiddleware,
 )
 
-
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RECORDING_PATH = os.path.join(BASE_DIR, 'uploaded_files')
-
+current_file = os.path.abspath(__file__)
+BASE_DIR = os.path.dirname(os.path.dirname(current_file))
+RECORDING_PATH = os.path.join(BASE_DIR, "uploaded_files")
+app = FastAPI(
+    title="Stutter Detection API",
+    description=(
+        "API for detecting stutter in audio files using Whisper AI "
+        "and custom stutter detection logic."
+    ),
+    version="1.0.0",
+)
+templates = Jinja2Templates(directory="frontend")
 app.mount("/static", StaticFiles(directory=RECORDING_PATH), name="static")
 app.mount("/assets", StaticFiles(directory="frontend"), name="assets")
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,6 +34,8 @@ app.add_middleware(LoggingMiddleware)
 app.add_middleware(PerformanceMonitorMiddleware)
 # app.include_router(whisper_router)
 app.include_router(stutter_router)
+
+
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("indexV6.html", {"request": request})

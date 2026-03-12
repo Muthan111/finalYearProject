@@ -1,14 +1,14 @@
-from fastapi import HTTPException
-import asyncio
 import traceback
 from src.utils.logger import logger
 import librosa
 import numpy as np
+
+
 class ProlongationDetectionService:
     def __init__(self):
         pass
 
-    def detect_prolongation(self,audio, sr):
+    def detect_prolongation(self, audio, sr):
         """
         Detects prolonged segments in the audio signal based on RMS energy.
         Args:
@@ -17,21 +17,25 @@ class ProlongationDetectionService:
         Returns:
             list: A list of times (in seconds) where prolongations occur.
         """
-        logger.info(f"[detect_prolongation] Detecting prolongations in audio...")
+        logger.info("Detecting prolongations in audio...")
         try:
             hop_length = 512
             energy_floor = 0.02
-            rms = librosa.feature.rms(y=audio, frame_length=2048, hop_length=hop_length).flatten()
+            rms = librosa.feature.rms(
+                y=audio, frame_length=2048, hop_length=hop_length
+            ).flatten()
             rms_diff = np.abs(np.diff(rms))
-            rms_masked = (rms[1:] > energy_floor)
-            logger.debug(f"[detect_prolongation] RMS shape: {rms.shape}, RMS diff shape: {rms_diff.shape}")
+            rms_masked = rms[1:] > energy_floor
+            logger.debug(
+                f"RMS shape: {rms.shape}, RMS diff shape: {rms_diff.shape}"
+            )
 
             threshold = 0.02
             min_frames = int((0.3 * sr) / hop_length)
 
             prolonged = (rms_diff < threshold) & rms_masked
-            logger.debug(f"[detect_prolongation] Any prolonged frames: {np.any(prolonged)}")
-            logger.debug(f"[detect_prolongation] Prolonged frame indices: {np.where(prolonged)[0]}")
+            logger.debug(f"Any prolonged frames: {np.any(prolonged)}")
+            logger.debug(f"Prolonged frame indices: {np.where(prolonged)[0]}")
 
             count = 0
             starts = []
@@ -41,13 +45,18 @@ class ProlongationDetectionService:
                 else:
                     if count >= min_frames:
                         starts.append(i - count)
-                        logger.debug(f"[detect_prolongation] Prolongation detected from frame {i - count} to {i}")
+                        logger.debug(f"""Prolongation
+                            detected from frame {i - count} to {i}""")
                     count = 0
             if count >= min_frames:
                 starts.append(len(prolonged) - count)
-                logger.debug(f"[detect_prolongation] Prolongation detected at end from frame {len(prolonged) - count}")
+                logger.debug(f"""Prolongation detected
+                at end from frame {len(prolonged) - count}""")
 
-            return [librosa.frames_to_time(s, sr=sr, hop_length=hop_length).item() for s in starts]
+            return [
+                librosa.frames_to_time(s, sr=sr, hop_length=hop_length).item()
+                for s in starts
+            ]
         except Exception as e:
             logger.error(f"Error in detect_prolongation: {e}")
             logger.error(traceback.format_exc())

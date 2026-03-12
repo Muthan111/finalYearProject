@@ -9,6 +9,7 @@ import logging
 
 logger = logging.getLogger("performance")
 
+
 class PerformanceMonitorMiddleware(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
@@ -25,9 +26,11 @@ class PerformanceMonitorMiddleware(BaseHTTPMiddleware):
         end_mem = self.process.memory_info().rss
         end_cpu = self.process.cpu_percent(interval=None)
 
-        logger.info(f"[Performance] {request.method} {request.url.path} - "
-                    f"Time: {end_time - start_time:.2f}s | "
-                    f"CPU: {end_cpu - start_cpu:.2f}% | "
-                    f"Memory: {(end_mem - start_mem) / (1024 * 1024):.2f} MB")
+        logger.info(
+            f"[Performance] {request.method} {request.url.path} - "
+            f"Time: {end_time - start_time:.2f}s | "
+            f"CPU: {end_cpu - start_cpu:.2f}% | "
+            f"Memory: {(end_mem - start_mem) / (1024 * 1024):.2f} MB"
+        )
 
         return response

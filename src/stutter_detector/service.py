@@ -1,18 +1,19 @@
-import logging
 from fastapi import HTTPException
 
-from src.stutter_detector.component_services.feedback_service import FeedbackService
-from src.stutter_detector.component_services.stutter_counter_service import StutterCounterService
+from src.stutter_detector.component_services.stutter_counter_service import (
+    StutterCounterService,
+)
 from src.stutter_detector.pipelines.audioPipeline import AudioPipeline
-from src.stutter_detector.pipelines.transcribePipeline import TranscribePipeline
+from src.stutter_detector.pipelines.transcribePipeline import (
+    TranscribePipeline,
+)
 from src.stutter_detector.pipelines.DetectionPipeline import DetectionPipeline
 from src.stutter_detector.pipelines.mfccPipeline import MfccPipeline
 from src.stutter_detector.pipelines.feedback_enginee import FeedbackEngine
-import asyncio
 import traceback
 from src.utils.logger import logger
-# testing blocks here
 
+# testing blocks here
 
 
 class stutterDetectorService:
@@ -26,6 +27,7 @@ class stutterDetectorService:
         self.feedback = FeedbackEngine()
         self.stutter_counter = StutterCounterService()
         self.feedback_Engine = FeedbackEngine()
+
     async def detect_stutter(self, file):
         # ===================
         # clear previous feedback
@@ -42,18 +44,16 @@ class stutterDetectorService:
             cleanedAudioPath = audio["cleaned_audio_path"]
             sr = audio["sr"]
 
-            
-
-            
-            
-            transcription = await self.transcribe_pipeline.run_pipeline(audioPath)
+            transcription = await self.transcribe_pipeline.run_pipeline(
+                audioPath
+            )
             if "error" in transcription:
-                raise HTTPException(status_code=500, detail=transcription["error"])
+                raise HTTPException(
+                    status_code=500, detail=transcription["error"]
+                )
             text_transcription = transcription["text_transcription"]
             alignment = transcription["alignment"]
             alignment_string = transcription["alignment_string"]
-            
-            
 
             mfcc = await self.mfcc_pipeline.run_pipeline(cleanedAudioPath, sr)
             if "error" in mfcc:
@@ -65,55 +65,23 @@ class stutterDetectorService:
                 sr1,
                 text_transcription,
                 alignment,
-                mfcc_features
-            )
-            
-            general_Count = self.stutter_counter.convert_count_to_string(
-                detection["fillers"],
-                detection["repeated_words"],
-                detection["blocks"],
-                detection["prolongations"],
-                detection["repeated_syllables"]
+                mfcc_features,
             )
             feedback = self.feedback_Engine.run_engine(detection)
             stutter_count = feedback["general_count"]
             personalized_feedback = feedback["personalized_feedback"]
-            
 
-            # personalized_feedback = self.feedback.personalized_feedback(detection)
+            # personalized_feedback =
+            # self.feedback.personalized_feedback(detection)
             return {
                 "transcription": text_transcription,
                 "detection": stutter_count,
                 "audioDisplayURL": audioDisplayURL,
                 "alignment": alignment_string,
-                "personalized_feedback": personalized_feedback
-                
+                "personalized_feedback": personalized_feedback,
             }
 
-
-            
         except Exception as e:
             logger.error(f"Error in detect_stutter: {e}")
             logger.error(traceback.format_exc())
             raise HTTPException(status_code=500, detail=str(e))
-
-    
-    
-    
-   
-    
-    
-    
-    
-
-
-
-
-    
-
-        
-        
-        
-
-        
-        
