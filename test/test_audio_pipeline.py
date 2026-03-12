@@ -3,7 +3,7 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from stutter_detector.component_services.audio_clean_service import AudioCleanService
+from src.stutter_detector.component_services.audio_clean_service import AudioCleanService
 
 async def test_audio_pipeline():
     """
